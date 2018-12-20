@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="processor" class="com.meituan.dorado.test.thrift.apitwitter.TwitterImpl"></bean>
+
+    <bean id="serverPublisher" class="com.meituan.dorado.config.service.spring.ServiceBean" destroy-method="destroy">
+        <property name="appkey" value="com.meituan.octo.dorado.server"/>
+        <property name="port" value="9001"/>
+        <property name="registry" value="mock"/>
+        <property name="ServiceConfig" ref="echoServiceConfig"></property>
+    </bean>
+
+    <bean id="echoServiceConfig" class="com.meituan.dorado.config.service.ServiceConfig">
+        <property name="serviceInterface" value="com.meituan.dorado.test.thrift.apitwitter.Twitter"/>
+        <property name="serviceImpl" ref="processor"/>
+        <property name="bizWorkerExecutor" ref="serviceExecutor"/>
+    </bean>
+
+    <bean id="serviceExecutor" class="java.util.concurrent.ThreadPoolExecutor">
+        <constructor-arg index="0" value="1"/>
+        <constructor-arg index="1" value="1"/>
+        <constructor-arg index="2" value="0"/>
+        <constructor-arg index="3" value="SECONDS"/>
+        <constructor-arg index="4">
+            <bean class="java.util.concurrent.SynchronousQueue"></bean>
+        </constructor-arg>
+    </bean>
+
+</beans>

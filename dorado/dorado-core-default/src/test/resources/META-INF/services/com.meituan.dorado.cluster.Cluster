@@ -1,0 +1,3 @@
+com.meituan.dorado.cluster.tolerance.FailoverCluster
+com.meituan.dorado.cluster.tolerance.FailbackCluster
+com.meituan.dorado.cluster.tolerance.FailfastCluster

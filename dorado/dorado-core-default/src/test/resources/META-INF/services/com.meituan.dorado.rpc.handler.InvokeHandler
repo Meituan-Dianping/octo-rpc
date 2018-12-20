@@ -1,0 +1,2 @@
+com.meituan.dorado.rpc.handler.invoker.DoradoInvokerInvokeHandler
+com.meituan.dorado.rpc.handler.provider.DoradoProviderInvokeHandler

@@ -1,0 +1,11 @@
+com.meituan.dorado.rpc.handler.filter.ClientQpsLimitFilter
+com.meituan.dorado.rpc.handler.filter.InvokerFilter
+com.meituan.dorado.rpc.handler.filter.TraceTestFilter
+
+#重复添加没有只会构造一个
+com.meituan.dorado.rpc.handler.filter.ClientQpsLimitFilter
+com.meituan.dorado.rpc.handler.filter.InvokerFilter
+com.meituan.dorado.rpc.handler.filter.TraceTestFilter
+com.meituan.dorado.rpc.handler.filter.ServerQpsLimitFilter
+com.meituan.dorado.rpc.handler.filter.ProviderFilter
+

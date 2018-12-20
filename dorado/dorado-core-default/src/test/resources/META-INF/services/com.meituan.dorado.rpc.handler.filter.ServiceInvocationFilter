@@ -1,0 +1,3 @@
+com.meituan.dorado.rpc.handler.filter.AccessLogFilter
+com.meituan.dorado.rpc.handler.filter.DoradoInvokerTraceFilter
+com.meituan.dorado.rpc.handler.filter.DoradoProviderTraceFilter

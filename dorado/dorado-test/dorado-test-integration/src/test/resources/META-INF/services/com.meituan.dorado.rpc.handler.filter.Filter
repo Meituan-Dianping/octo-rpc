@@ -1,0 +1,12 @@
+com.meituan.dorado.test.thrift.filter.ClientQpsLimitFilter
+com.meituan.dorado.test.thrift.filter.InvokerFilter
+
+#重复添加没有只会构造一个
+com.meituan.dorado.test.thrift.filter.ClientQpsLimitFilter
+com.meituan.dorado.test.thrift.filter.InvokerFilter
+com.meituan.dorado.test.thrift.filter.ServerQpsLimitFilter
+com.meituan.dorado.test.thrift.filter.ProviderFilter
+
+
+
+
