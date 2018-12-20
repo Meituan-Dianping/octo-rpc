@@ -1,0 +1,97 @@
+From 8a663a187142a030d762f111540bf3e2472ae17b Mon Sep 17 00:00:00 2001
+From: huixiangbo <huixiangbo@meituan.com>
+Date: Sun, 16 Dec 2018 01:35:28 +0800
+Subject: [PATCH] add patch for http
+
+---
+ CMakeLists.txt               |  2 +-
+ muduo/net/http/HttpContext.h | 21 +++++++++++++++++++++
+ muduo/net/http/HttpRequest.h | 10 ++++++++++
+ 3 files changed, 32 insertions(+), 1 deletion(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index fcb8103..b525072 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -11,7 +11,7 @@ endif()
+ set(CXX_FLAGS
+  -g
+  # -DVALGRIND
+- # -DMUDUO_STD_STRING
++ -DMUDUO_STD_STRING
+  -DCHECK_PTHREAD_RETURN_VALUE
+  -D_FILE_OFFSET_BITS=64
+  -Wall
+diff --git a/muduo/net/http/HttpContext.h b/muduo/net/http/HttpContext.h
+index b550b7f..861c6bd 100644
+--- a/muduo/net/http/HttpContext.h
++++ b/muduo/net/http/HttpContext.h
+@@ -43,9 +43,30 @@ class HttpContext : public muduo::copyable
+   // return false if any error
+   bool parseRequest(Buffer* buf, Timestamp receiveTime);
+ 
++  bool expectRequestLine() const
++  { return state_ == kExpectRequestLine; }
++
++  bool expectHeaders() const
++  { return state_ == kExpectHeaders; }
++
++  bool expectBody() const
++  { return state_ == kExpectBody; }
++
+   bool gotAll() const
+   { return state_ == kGotAll; }
+ 
++  void receiveRequestLine()
++  { state_ = kExpectHeaders; }
++
++  void receiveHeaders()
++  { state_ = kExpectBody;}  // chaoshu
++
++  void receiveBody()
++  { state_ = kGotAll; }  //chaoshu
++
++  void receiveAll()
++ { state_ = kGotAll; }  //chaoshu, use for ONLY head, NO body
++
+   void reset()
+   {
+     state_ = kExpectRequestLine;
+diff --git a/muduo/net/http/HttpRequest.h b/muduo/net/http/HttpRequest.h
+index 7ecad6d..d957ef5 100644
+--- a/muduo/net/http/HttpRequest.h
++++ b/muduo/net/http/HttpRequest.h
+@@ -162,6 +162,14 @@ class HttpRequest : public muduo::copyable
+   const std::map<string, string>& headers() const
+   { return headers_; }
+ 
++ void setBody(const char* start, const char* end)  //chaoshu
++  {
++    body_.assign(start, end);
++  }
++
++  const string& body() const		//chaoshu
++  { return body_; }
++
+   void swap(HttpRequest& that)
+   {
+     std::swap(method_, that.method_);
+@@ -170,6 +178,7 @@ class HttpRequest : public muduo::copyable
+     query_.swap(that.query_);
+     receiveTime_.swap(that.receiveTime_);
+     headers_.swap(that.headers_);
++    body_.assign(that.body_);   //chaoshu	
+   }
+ 
+  private:
+@@ -179,6 +188,7 @@ class HttpRequest : public muduo::copyable
+   string query_;
+   Timestamp receiveTime_;
+   std::map<string, string> headers_;
++  string body_;			//chaoshu
+ };
+ 
+ }
+-- 
+1.7.12.4
+

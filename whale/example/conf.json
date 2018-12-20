@@ -1,0 +1,17 @@
+{
+  "ns": {
+    "origin": "127.0.0.1:2181",
+    "ismns": 0,
+    "env":"test"
+  },
+  "client.Appkey": "com.sankuai.inf.newct.client",
+  "server.Version": "3.0.0",
+  "server.ListenPort": 16888,
+  "server.Appkey": "com.sankuai.inf.newct",
+  "server.register": 1,
+  "server.WorkThreadNum": 4,
+  "server.MaxConnNum": 10000,
+  "server.ServerTimeOut": 100,
+  "server.ConnGCTime": 10,
+  "server.ConnThreadNum": 4
+}
