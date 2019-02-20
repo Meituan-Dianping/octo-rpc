@@ -29,7 +29,7 @@
    服务端节点异常自动降级探测，提升调用端服务的可用性。
 
 ## 详细介绍
-更多关于框架的介绍见：[OCTO-Dorado通信框架介绍](https://github.com/Meituan-Dianping/octo-rpc/wiki/OCTO-Dorado%E9%80%9A%E4%BF%A1%E6%A1%86%E6%9E%B6%E4%BB%8B%E7%BB%8D)
+更多关于框架的介绍见：[OCTODorado通信框架介绍](https://github.com/Meituan-Dianping/octo-rpc/wiki/OCTO-Dorado%E9%80%9A%E4%BF%A1%E6%A1%86%E6%9E%B6%E4%BB%8B%E7%BB%8D)
 
 ## 使用文档
 - [快速开始](dorado-doc/QuickStart.md)

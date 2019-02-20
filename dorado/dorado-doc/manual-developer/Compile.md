@@ -33,7 +33,7 @@ mvn clean package -Dmaven.test.skip=true
 
 - 默认dorado包未包含需以上模块，若需要使用见看下面的 自定义Jar包
 
-- dorado-registry-mns是OCTO-NS注册中心的集成模块，若使用请到[OCTO-NS](https://github.com/Meituan-Dianping/octo-ns/blob/master/mns-invoker/README.md)获取依赖mns-invoker依赖（需要有MNS注册服务）
+- dorado-registry-mns是OCTONS注册中心的集成模块，若使用请到[OCTONS](https://github.com/Meituan-Dianping/octo-ns/blob/master/mns-invoker/README.md)获取依赖mns-invoker依赖（需要有MNS注册服务）
 
 - dorado-trace-cat是Cat应用监控的集成，若使用请到[Cat](https://github.com/dianping/cat)获取依赖（需要有Cat服务）
 

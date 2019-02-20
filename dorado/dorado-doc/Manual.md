@@ -110,7 +110,7 @@ public class QuickStartServer {
         ProviderConfig config = new ProviderConfig();
         config.setAppkey("com.meituan.octo.dorado.server");           // 服务appkey
         config.setServiceConfig(serviceConfig);                       // 服务接口配置类           
-        config.setRegistry("mns");                                    // 服务注册  [OCTO-NS]服务命名组件方式进行注册
+        config.setRegistry("mns");                                    // 服务注册  [OCTONS]服务命名组件方式进行注册
         config.setPort(9001);                                         // 服务端口号
         config.init();                                                // 启动服务
     }
