@@ -1,4 +1,4 @@
-# OCTO - Dorado
+# OCTODorado
 
 ## 简要介绍
 - Dorado是OCTO生态中的一员，为Java服务提供具备治理功能的RPC通信框架。美团内部服务之间使用OCTO协议进行通信，默认支持Thrift，便于不同语言服务之间互通。

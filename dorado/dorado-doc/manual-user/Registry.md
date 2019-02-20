@@ -4,29 +4,29 @@
 OCTO服务治理体系的服务是以Appkey命名，每个服务都必须有一个唯一的Appkey来标识你的服务，比如*com.meituan.{应用名}.{模块名}.{服务名}*，
 即OCTO体系的服务注册与发现都基于Appkey进行的。
 
-Dorado 目前支持三种服务注册方式，分别是 MNS、Zookeeper、Mock
+Dorado 目前支持三种服务注册方式，分别是 OCTONS、Zookeeper、Mock
 
 ## 1.服务注册/发现方式
 
-### 1.1 MNS(OCTONS)
+### 1.1 OCTONS
 
-MNS是本次开源的OCTO中的命名服务组件(OCTONS)，作为注册中心，框架服务节点只需与本地Agent交互，减少网络开销。
+OCTONS是本次开源的OCTO中的命名服务组件，作为注册中心，框架服务节点只需与本地Agent交互，减少网络开销。
 具体的实现原理和使用方式详见[OCTONS](https://github.com/Meituan-Dianping/octo-ns)
 
 ### 1.2 Zookeeper
 
 Dorado同时支持通过Zookeeper来进行服务的注册与发现，使用该模式前需要确保配置相应的Zookeeper集群。
-因为OCTONS底层也是ZK，只要共用了一个Zookeeper集群，ZK与MNS模块就可以混合使用，便于使用者进行切换迁移。比如：你的服务端务注册到了OCTONS，调用端直接使用ZK可以正常的进行服务发现。
+因为OCTONS底层也是ZK，只要共用了一个Zookeeper集群，ZK与OCTONS模块就可以混合使用，便于使用者进行切换迁移。比如：你的服务端务注册到了OCTONS，调用端直接使用ZK可以正常的进行服务发现。
 
 ### 1.3 Mock
 
-当同时缺少MNS和Zookeeper环境时，服务端可以通过mock的形式进行伪注册，然后通过直连的方式访问服务端。
+当同时缺少OCTONS和Zookeeper环境时，服务端可以通过mock的形式进行伪注册，然后通过直连的方式访问服务端。
 
 ## 2. 使用说明
 
 ### 2.2 XML配置方式
 
-* MNS
+* OCTONS
 
 ```xml
 <bean id="serverPublisher" class="com.meituan.dorado.config.service.spring.ServiceBean">
