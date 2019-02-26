@@ -73,11 +73,11 @@ public class URLUtil {
                     // We haven't seen an `=' so far but moved forward.
                     // Must be a param of the form '&a&' so add it with
                     // an empty value.
-                    if (!addParam(params, decodeComponent(str.substring(pos, i)), "", paramNum)) {
+                    if (!addParam(params, decodeComponent(str.substring(pos, i)), "", paramNum++)) {
                         return params;
                     }
                 } else if (name != null) {
-                    if (!addParam(params, name, decodeComponent(str.substring(pos, i)), paramNum)) {
+                    if (!addParam(params, name, decodeComponent(str.substring(pos, i)), paramNum++)) {
                         return params;
                     }
                     name = null;
@@ -88,12 +88,12 @@ public class URLUtil {
 
         if (pos != i) {  // Are there characters we haven't dealt with?
             if (name == null) {     // Yes and we haven't seen any `='.
-                addParam(params, decodeComponent(str.substring(pos, i)), "", paramNum);
+                addParam(params, decodeComponent(str.substring(pos, i)), "", paramNum++);
             } else {                // Yes and this must be the last value.
-                addParam(params, name, decodeComponent(str.substring(pos, i)), paramNum);
+                addParam(params, name, decodeComponent(str.substring(pos, i)), paramNum++);
             }
         } else if (name != null) {  // Have we seen a name without value?
-            addParam(params, name, "", paramNum);
+            addParam(params, name, "", paramNum++);
         }
         return params;
     }
@@ -109,7 +109,6 @@ public class URLUtil {
             params.put(name, values);
         }
         values.add(value);
-        paramNum ++;
         return true;
     }
 
