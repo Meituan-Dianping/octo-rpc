@@ -6,7 +6,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Dorado的目标是构建一套更易用、更高效、更可靠，具有良好扩展性的分布式通信框架。
 
 # 2.框架介绍
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;首先来看一下美团分布式框架的部署模式，为方便理解如下是一个简单的架构图：紫色方块是注册中心[OCTONS](https://github.com/Meituan-Dianping/octo-ns)，各节点不直接与注册中心服务交互，而是与本地Agent交互来进行服务注册发现，减少网络延迟和对注册中心的压力。绿色方块是监控跟踪服务，Dorado开源版本使用[Cat](https://github.com/dianping/cat)作为监控上报。说明一下，这里是以美团开源组件的应用作为示例，OCTONS和Cat均是Dorado的扩展支持模块。
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;首先来看一下美团分布式框架的部署模式，为方便理解如下是一个简单的架构图：紫色方块是注册中心[OCTO-NS](https://github.com/Meituan-Dianping/octo-ns)，各节点不直接与注册中心服务交互，而是与本地Agent交互来进行服务注册发现，减少网络延迟和对注册中心的压力。绿色方块是监控跟踪服务，Dorado开源版本使用[Cat](https://github.com/dianping/cat)作为监控上报。说明一下，这里是以美团开源组件的应用作为示例，OCTO-NS和Cat均是Dorado的扩展支持模块。
 
 ![ServiceArchitecture](https://github.com/Meituan-Dianping/octo-rpc/blob/master/dorado/dorado-doc/img/ServiceArchitecture.svg)
 
@@ -16,11 +16,11 @@
 
 - **Provider服务端**
 
-  服务端通过注册模块向注册中心发起注册，接收[OCTOScanner](https://github.com/Meituan-Dianping/octo-ns/tree/master/scanner)的健康检查心跳数据，确认服务端节点的可用性，如果发现节点异常则会修改节点状态为Dead，调用端会自动将该节点摘除；
+  服务端通过注册模块向注册中心发起注册，接收[OCTO-Scanner](https://github.com/Meituan-Dianping/octo-ns/tree/master/scanner)的健康检查心跳数据，确认服务端节点的可用性，如果发现节点异常则会修改节点状态为Dead，调用端会自动将该节点摘除；
 
   接收到调用端的请求后，会通过InvokeTrace接口向监控中心上报数据；
 
-  服务节点可以通过[OCTOPortal](https://github.com/Meituan-Dianping/octo-portal)管理，进行节点禁用、启用、权重调整和删除的操作。
+  服务节点可以通过[OCTO-Portal](https://github.com/Meituan-Dianping/octo-portal)管理，进行节点禁用、启用、权重调整和删除的操作。
 
 - **Invoker调用端**
 
@@ -67,23 +67,23 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;以下对Dorado部分功能做简要介绍：
 
 ### 2.4.1 服务注册发现
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Dorado提供了两种服务注册发现的模块，分别集成了OCTONS和Zookeeper，另外提供了一个mock模块用于在没有注册中心服务时直连测试使用。
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Dorado提供了两种服务注册发现的模块，分别集成了OCTO-NS和Zookeeper，另外提供了一个mock模块用于在没有注册中心服务时直连测试使用。
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;无论使用OCTONS还是Zookeeper进行注册，服务节点均可以在OCTOPortal进行管理；
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;无论使用OCTO-NS还是Zookeeper进行注册，服务节点均可以在OCTO-Portal进行管理；
 
-- **OCTONS**：
+- **OCTO-NS**：
 
-   在前面介绍中，给出的架构图即使用OCTONS作为注册中心，作为美团的内部实践，也是我们建议的使用方式。框架服务节点只需与本地Agent交互，减少网络开销。
+   在前面介绍中，给出的架构图即使用OCTO-NS作为注册中心，作为美团的内部实践，也是我们建议的使用方式。框架服务节点只需与本地Agent交互，减少网络开销。
 
 - **Zookeeper**
 
-   如果你没有OCTONS服务，没关系，只要有部署好的Zookeeper服务，配置地址后就可以直接使用Dorado。而且因为OCTONS底层也是ZK，只要共用了一个Zookeeper集群，ZK与OCTONS模块就可以混合使用，便于使用者进行切换迁移。比如：你的服务端务注册到了OCTONS，调用端直接使用ZK可以正常的进行服务发现。
+   如果你没有OCTO-NS服务，没关系，只要有部署好的Zookeeper服务，配置地址后就可以直接使用Dorado。而且因为OCTO-NS底层也是ZK，只要共用了一个Zookeeper集群，ZK与OCTO-NS模块就可以混合使用，便于使用者进行切换迁移。比如：你的服务端务注册到了OCTO-NS，调用端直接使用ZK可以正常的进行服务发现。
 
-   当然若你的节点数量非常多，那我们还是推荐使用OCTONS作为注册中心。
+   当然若你的节点数量非常多，那我们还是推荐使用OCTO-NS作为注册中心。
 
 - **Mock**
 
-   如果你没有OCTONS也没有Zookeeper，但又想使用Dorado，可以将注册配置设置为mock，调用端配置直连，就可以简单的发起自己的RPC调用。
+   如果你没有OCTO-NS也没有Zookeeper，但又想使用Dorado，可以将注册配置设置为mock，调用端配置直连，就可以简单的发起自己的RPC调用。
 
 [服务注册发现说明](https://github.com/Meituan-Dianping/octo-rpc/tree/master/dorado/dorado-doc/manual-user/Registry.md)
 
@@ -141,9 +141,9 @@
 
   具体场景是调用端发送请求失败或创建连接失败后，会将该服务节点权重临时降级为0，后台任务探测节点连接状态，直到异常节点可用后恢复权重。
 
-- **外部OCTOScanner检查**
+- **外部OCTO-Scanner检查**
 
-  若你部署了OCTONS相关服务，服务端无论是使用OCTONS还是Zookeeper进行注册，都会接收到来自OCTOScanner的心跳检测，若发现节点不可用则会变更注册节点的状态，各个调用端都会收到变更从而摘除该节点；Scanner继续向不可用节点发心跳，若检测OK则恢复状态，各个调用端则会将该节点重新加会到服务列表。
+  若你部署了OCTO-NS相关服务，服务端无论是使用OCTO-NS还是Zookeeper进行注册，都会接收到来自OCTO-Scanner的心跳检测，若发现节点不可用则会变更注册节点的状态，各个调用端都会收到变更从而摘除该节点；Scanner继续向不可用节点发心跳，若检测OK则恢复状态，各个调用端则会将该节点重新加会到服务列表。
   
 ### 2.4.6 单端口多服务
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;通常RPC服务都是一个端口一个服务，而实际应用中，业务方可能要提供大量的接口服务，每个服务都配置一个端口，每个端口都会初始化一套IO线程资源（后续会考虑IO线程共用），除了会创建大量线程外还会增加内存占用，尤其是Netty使用堆外内存，堆外内存问题不是通过dump就能快速排查出来的。线上就曾遇到过业务启用了34个端口导致堆外内存泄漏问题，虽然最后发现是Netty4.1.26的bug（https://github.com/netty/netty/pull/8160，4.1.29已修复），但为了避免类似问题我们更推荐大家在有多个接口时使用单端口多服务。
@@ -162,12 +162,12 @@
    
   | SPI接口 | 说明 | 默认实现 |
   | --- | --- | --- |
-  | com.meituan.dorado.registry.RegistryFactory | 注册中心 | MnsRegistryFactory(集成开源组件OCTONS)、ZookeeperRegistryFactory、MockRegistryFactory(用于无注册中心服务时测试) |
+  | com.meituan.dorado.registry.RegistryFactory | 注册中心 | MnsRegistryFactory(集成开源组件OCTO-NS)、ZookeeperRegistryFactory、MockRegistryFactory(用于无注册中心服务时测试) |
   | com.meituan.dorado.cluster.Cluster | 请求容错策略 | FailoverCluster(失败直接返回)、FailbackCluster(失败后重试其他节点)、FailOverCluster(失败重发) |
   | com.meituan.dorado.cluster.LoadBalance | 负载均衡策略 | RandomLoadBalance(随机权重)、RoundRobinLoadBalance(加权轮询) |
-  | com.meituan.dorado.cluster.Router | 路由策略 | NoneRouter ；路由一般跟节点部署强相关，Dorado暂未提供默认实现，若使用OCTONS获取则是经过路由的服务列表|
+  | com.meituan.dorado.cluster.Router | 路由策略 | NoneRouter ；路由一般跟节点部署强相关，Dorado暂未提供默认实现，若使用OCTO-NS获取则是经过路由的服务列表|
   | com.meituan.dorado.rpc.handler.InvokeHandler | 服务请求处理类 | DoradoInvokerInvokeHandler(调用端请求处理)、DoradoProviderInvokeHandler(服务端请求处理) |
-  | com.meituan.dorado.rpc.handler.HeartBeatInvokeHandler | 心跳请求处理 | ScannerHeartBeatInvokeHandler (OCTOScanner心跳处理)|
+  | com.meituan.dorado.rpc.handler.HeartBeatInvokeHandler | 心跳请求处理 | ScannerHeartBeatInvokeHandler (OCTO-Scanner心跳处理)|
   | com.meituan.dorado.rpc.handler.HandlerFactory | 根据消息类型获取InvokeHandler和.HeartBeatInvokeHandler | DoradoHandlerFactory |
   | com.meituan.dorado.rpc.handler.filter.Filter | 过滤器实现 | DoradoInvokerTraceFilter(用于调用端埋点)、DoradoProviderTraceFilter(用于服务端埋点) |
   | com.meituan.dorado.rpc.handler.http.HttpInvokeHandler | Http接口测试 | DoradoHttpInvokeHandler |

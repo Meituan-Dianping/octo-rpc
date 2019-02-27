@@ -8,12 +8,12 @@ Dorado目前提供了以下的SPI扩展点 ：
 
 | SPI接口 | 说明 | 默认实现 | 是否可以同时支持多个实现 |
 | --- | --- | --- | --- |
-| com.meituan.dorado.registry.RegistryFactory | 注册中心 | MnsRegistryFactory(集成开源组件OCTONS)、ZookeeperRegistryFactory、MockRegistryFactory(用于无注册中心服务时测试) | 支持，通过配置选择使用 |
+| com.meituan.dorado.registry.RegistryFactory | 注册中心 | MnsRegistryFactory(集成开源组件OCTO-NS)、ZookeeperRegistryFactory、MockRegistryFactory(用于无注册中心服务时测试) | 支持，通过配置选择使用 |
 | com.meituan.dorado.cluster.Cluster | 请求容错策略 | FailoverCluster(失败直接返回)、FailbackCluster(失败后重试其他节点)、FailOverCluster(失败重发) | 支持，通过配置选择使用 |
 | com.meituan.dorado.cluster.LoadBalance | 负载均衡策略 | RandomLoadBalance(随机权重)、RoundRobinLoadBalance(加权轮询) | 支持，通过配置选择使用 |
-| com.meituan.dorado.cluster.Router | 路由策略 | NoneRouter ；路由一般跟节点部署强相关，Dorado暂未提供默认实现，若使用OCTONS获取则是经过路由的服务列表| 支持，通过配置选择使用 |
+| com.meituan.dorado.cluster.Router | 路由策略 | NoneRouter ；路由一般跟节点部署强相关，Dorado暂未提供默认实现，若使用OCTO-NS获取则是经过路由的服务列表| 支持，通过配置选择使用 |
 | com.meituan.dorado.rpc.handler.InvokeHandler | 服务请求处理类 | DoradoInvokerInvokeHandler(调用端请求处理)、DoradoProviderInvokeHandler(服务端请求处理) | 支持，通过角色获取，但服务端或调用端只能有一个 |
-| com.meituan.dorado.rpc.handler.HeartBeatInvokeHandler | 心跳请求处理 | ScannerHeartBeatInvokeHandler (OCTOScanner心跳处理)| 支持，由HandlerFactory按名字选择使用|
+| com.meituan.dorado.rpc.handler.HeartBeatInvokeHandler | 心跳请求处理 | ScannerHeartBeatInvokeHandler (OCTO-Scanner心跳处理)| 支持，由HandlerFactory按名字选择使用|
 | com.meituan.dorado.rpc.handler.HandlerFactory | 根据消息类型获取InvokeHandler和.HeartBeatInvokeHandler | DoradoHandlerFactory | 不支持 |
 | com.meituan.dorado.rpc.handler.filter.Filter | 过滤器实现 | DoradoInvokerTraceFilter(用于调用端埋点)、DoradoProviderTraceFilter(用于服务端埋点) | 支持，共同使用 |
 | com.meituan.dorado.rpc.handler.http.HttpInvokeHandler | Http接口测试 | DoradoHttpInvokeHandler | 不支持 |
