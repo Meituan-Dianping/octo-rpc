@@ -26,7 +26,6 @@ import com.meituan.dorado.config.service.ServiceConfig;
 import com.meituan.dorado.config.service.spring.ReferenceBean;
 import com.meituan.dorado.config.service.spring.ServiceBean;
 import com.meituan.dorado.mock.*;
-import com.meituan.dorado.registry.RegistryPolicy;
 import com.meituan.dorado.registry.meta.Provider;
 import com.meituan.dorado.registry.meta.RegistryInfo;
 import com.meituan.dorado.registry.meta.SubscribeInfo;
@@ -61,7 +60,7 @@ public class MockUtil {
     }
 
     public static ProviderConfig getProviderConfig() {
-        ServiceConfig  serviceConfig = getServiceConfig();
+        ServiceConfig serviceConfig = getServiceConfig();
         ProviderConfig config = new ProviderConfig();
         config.setPort(9001);
         config.setAppkey("com.meituan.octo.dorado.server");
@@ -96,7 +95,7 @@ public class MockUtil {
     public static RpcInvocation getRpcInvocation() throws NoSuchMethodException {
         Method method = HelloService.class.getMethod("sayHello", String.class);
         RpcInvocation invocation = new RpcInvocation(HelloService.class, method,
-                new Object[] {"hello"}, new Class<?>[] {String.class});
+                new Object[]{"hello"}, new Class<?>[]{String.class});
         invocation.putAttachment(Constants.RPC_REQUEST, getRequest());
         return invocation;
     }
@@ -104,7 +103,7 @@ public class MockUtil {
     public static RpcInvocation getRpcInvocationWithoutRequest() throws NoSuchMethodException {
         Method method = HelloService.class.getMethod("sayHello", String.class);
         RpcInvocation invocation = new RpcInvocation(HelloService.class, method,
-                new Object[] {"hello"}, new Class<?>[] {String.class});
+                new Object[]{"hello"}, new Class<?>[]{String.class});
         return invocation;
     }
 
@@ -123,7 +122,7 @@ public class MockUtil {
         return clientConfig;
     }
 
-    public static<T> List<Invoker<T>> getInvokerList() {
+    public static <T> List<Invoker<T>> getInvokerList() {
         List<Invoker<T>> invokers = new ArrayList<>();
         invokers.add(MockUtil.getInvoker());
 
@@ -223,7 +222,7 @@ public class MockUtil {
     }
 
     public static ServiceBean getServerBean() {
-        ServiceConfig  serviceConfig = getServiceConfig();
+        ServiceConfig serviceConfig = getServiceConfig();
         ServiceBean bean = new ServiceBean();
 
         bean.setPort(9001);
@@ -263,10 +262,12 @@ public class MockUtil {
         return new ResponseCallback() {
 
             @Override
-            public void onComplete(Object result) {}
+            public void onComplete(Object result) {
+            }
 
             @Override
-            public void onError(Throwable e) {}
+            public void onError(Throwable e) {
+            }
         };
     }
 }

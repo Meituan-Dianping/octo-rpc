@@ -16,10 +16,10 @@
 package com.meituan.dorado.demo.thrift.async;
 
 import com.meituan.dorado.bootstrap.ServiceBootstrap;
-import com.meituan.dorado.demo.thrift.api.HelloService;
 import com.meituan.dorado.rpc.AsyncContext;
 import com.meituan.dorado.rpc.ResponseCallback;
 import com.meituan.dorado.rpc.ResponseFuture;
+import com.meituan.dorado.test.thrift.api.HelloService;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.util.concurrent.Callable;
@@ -81,7 +81,7 @@ public class AsyncConsumer {
             });
             end = System.currentTimeMillis();
             System.out.println("异步调用设置回调 cost:" + (end - start) + "ms");
-            Thread.sleep(1000);
+            Thread.sleep(3100);
         } catch (Exception e) {
             e.printStackTrace();
         }

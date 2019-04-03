@@ -79,15 +79,15 @@ public abstract class AbstractInvokerInvokeHandler implements InvokeHandler {
                     throw (RemoteException) execption;
                 }
                 String remotehostPort = getRemoteHostPort(request);
-                throw new RemoteException("Remote invoke failed(" + execption.getMessage() + "), interface=" + request.getServiceName() + "|method=" + request.getData().getMethod().getName() + "|provider=" +
+                throw new RemoteException("Remote invoke failed, interface=" + request.getServiceName() + "|method=" + request.getData().getMethod().getName() + "|provider=" +
                         remotehostPort, execption);
             }
             String remotehostPort = getRemoteHostPort(request);
-            throw new RemoteException("Remote invoke failed(" + e.getMessage() + "), interface=" + request.getServiceName() + "|method=" + request.getData().getMethod().getName() + "|provider=" +
+            throw new RemoteException("Remote invoke failed, interface=" + request.getServiceName() + "|method=" + request.getData().getMethod().getName() + "|provider=" +
                     remotehostPort, e);
         } catch (Throwable e) {
             String remotehostPort = getRemoteHostPort(request);
-            throw new RemoteException("Remote invoke failed(" + e.getMessage() + "), interface=" + request.getServiceName() + "|method=" + request.getData().getMethod().getName() + "|provider=" +
+            throw new RemoteException("Remote invoke failed, interface=" + request.getServiceName() + "|method=" + request.getData().getMethod().getName() + "|provider=" +
                     remotehostPort, e);
         } finally {
             ServiceInvocationRepository.removeAndGetFuture(request.getSeq());

@@ -15,7 +15,7 @@
  */
 package com.meituan.dorado.testclient;
 
-import com.meituan.dorado.test.echo.Echo;
+import com.meituan.dorado.test.thrift.api.Echo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

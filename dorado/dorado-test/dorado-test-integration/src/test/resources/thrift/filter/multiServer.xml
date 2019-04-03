@@ -50,9 +50,9 @@
         </property>
     </bean>
     <bean id="serviceConfig2" class="com.meituan.dorado.config.service.ServiceConfig">
-        <property name="serviceInterface" value="com.meituan.dorado.test.thrift.api2.TestService"/>
+        <property name="serviceInterface" value="com.meituan.dorado.test.thrift.apisuite.TestSuite"/>
         <property name="serviceImpl" ref="serviceProcessor2"/>
     </bean>
-    <bean id="serviceProcessor2" class="com.meituan.dorado.test.thrift.api2.TestServiceImpl"/>
+    <bean id="serviceProcessor2" class="com.meituan.dorado.test.thrift.apisuite.TestSuiteImpl"/>
 
 </beans>

@@ -2,10 +2,9 @@ package com.meituan.dorado.client;
 
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.UniformReservoir;
-import com.meituan.dorado.api.Echo;
+import com.meituan.dorado.test.thrift.api.Echo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -86,6 +85,7 @@ public class DoradoClient {
                     client.echo(message);
                 } catch (Exception e) {
                     errorCount.incrementAndGet();
+                    e.printStackTrace();
                 }
                 long after = System.currentTimeMillis();
                 long cost = after - before;
@@ -103,11 +103,5 @@ public class DoradoClient {
             sb.append(base.charAt(number));
         }
         return sb.toString();
-    }
-
-    public static void main(String[] args) {
-        ClassPathXmlApplicationContext clientBeanFactory = new ClassPathXmlApplicationContext("benchmark/client.xml");
-        Echo.Iface client = (Echo.Iface) clientBeanFactory.getBean("clientProxy");
-        new DoradoClient().runClient();
     }
 }

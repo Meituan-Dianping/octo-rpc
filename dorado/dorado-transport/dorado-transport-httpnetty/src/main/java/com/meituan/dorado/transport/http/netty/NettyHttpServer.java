@@ -80,21 +80,22 @@ public class NettyHttpServer extends AbstractHttpServer {
         try {
             if (Epoll.isAvailable()) {
                 logger.info("NettyHttpServer use EpollEventLoopGroup!");
-                bossGroup = new EpollEventLoopGroup(NIO_CONN_THREADS, new DefaultThreadFactory("NettyHttpServerBossGroup"));
+                bossGroup = new EpollEventLoopGroup(NIO_CONN_THREADS, new DefaultThreadFactory("DoradoHttpServerBossGroup"));
                 workerGroup = new EpollEventLoopGroup(NIO_WORKER_THREADS,
-                        new DefaultThreadFactory("NettyHttpServerWorkerGroup"));
+                        new DefaultThreadFactory("DoradoHttpServerWorkerGroup"));
             } else {
-                bossGroup = new NioEventLoopGroup(NIO_CONN_THREADS, new DefaultThreadFactory("NettyHttpServerBossGroup"));
+                bossGroup = new NioEventLoopGroup(NIO_CONN_THREADS, new DefaultThreadFactory("DoradoHttpServerBossGroup"));
                 workerGroup = new NioEventLoopGroup(NIO_WORKER_THREADS,
-                        new DefaultThreadFactory("NettyHttpServerWorkerGroup"));
+                        new DefaultThreadFactory("DoradoHttpServerWorkerGroup"));
             }
 
             bootstrap = new ServerBootstrap();
             final NettyHttpServer httpServer = this;
             bootstrap.group(bossGroup, workerGroup)
                     .channel(workerGroup instanceof EpollEventLoopGroup ? EpollServerSocketChannel.class : NioServerSocketChannel.class)
+                    .option(ChannelOption.SO_REUSEADDR, true)
+                    .option(ChannelOption.SO_BACKLOG, 1024)
                     .childOption(ChannelOption.TCP_NODELAY, true)
-                    .childOption(ChannelOption.SO_REUSEADDR, true)
                     .childOption(ChannelOption.SO_KEEPALIVE, true)
                     .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                     .childHandler(new ChannelInitializer<NioSocketChannel>() {
@@ -105,7 +106,7 @@ public class NettyHttpServer extends AbstractHttpServer {
                                     .addLast("encoder", new HttpResponseEncoder())
                                     .addLast("handler", new NettyHttpServerHandler(getHttpHandler(), httpServer));
                         }
-                    }).option(ChannelOption.SO_BACKLOG, 128);
+                    });
 
             bindPort();
         } catch (Throwable e) {

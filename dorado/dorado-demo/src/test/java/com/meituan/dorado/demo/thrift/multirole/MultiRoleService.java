@@ -15,8 +15,7 @@
  */
 package com.meituan.dorado.demo.thrift.multirole;
 
-import com.meituan.dorado.demo.ConsoleCommandProcessor;
-import com.meituan.dorado.demo.thrift.api.HelloService;
+import com.meituan.dorado.test.thrift.api.HelloService;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class MultiRoleService {
@@ -28,7 +27,8 @@ public class MultiRoleService {
             HelloService.Iface userservice = (HelloService.Iface) beanFactory.getBean("helloService");
             System.out.println(userservice.sayHello("Emma"));
 
-            ConsoleCommandProcessor.processCommands(beanFactory);
+            beanFactory.destroy();
+            System.exit(0);
         } catch (Exception e) {
             e.printStackTrace();
         }

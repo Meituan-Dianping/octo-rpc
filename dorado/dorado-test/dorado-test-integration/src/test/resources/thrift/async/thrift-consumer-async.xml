@@ -24,5 +24,6 @@
         <property name="serviceInterface" value="com.meituan.dorado.test.thrift.api.HelloService"/> <!-- 接口类 -->
         <property name="directConnAddress" value="127.0.0.1:9001"/>
         <property name="timeout" value="10000"/>
+        <!--<property name="remoteOctoProtocol" value="true"/>-->
     </bean>
 </beans>

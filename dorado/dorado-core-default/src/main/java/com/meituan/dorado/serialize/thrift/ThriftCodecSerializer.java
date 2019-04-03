@@ -91,7 +91,7 @@ public class ThriftCodecSerializer {
     public static Object decodeThrift(byte[] buff, Map<String, Object> attachments) throws Exception {
         Class<?> iface = (Class<?>) attachments.get(Constants.SERVICE_IFACE);
         if (iface == null) {
-            throw new ProtocolException("Origin thrift just support one service per port.");
+            throw new ProtocolException("Origin thrift just support request serivce that has one service per port.");
         }
         ThriftMessageSerializer serializer = getSerializer(iface);
         return serializer.deserialize4Thrift(buff, iface, attachments);

@@ -20,12 +20,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class RpcInvocation {
 
     private static final Logger logger = LoggerFactory.getLogger(RpcInvocation.class);
+    private static final List<String> FRAMEWORKE_PARAM_KEYS = new ArrayList<String>(Arrays.asList(Constants.RPC_REQUEST,
+            Constants.TRACE_PARAM, Constants.TRACE_FILTER_FINISHED, Constants.TRACE_TIMELINE));
 
     private Class<?> serviceInterface;
     private Method method;
@@ -62,15 +63,19 @@ public class RpcInvocation {
     }
 
     public void putAttachments(Map<String, Object> attachments) {
-        this.attachments.putAll(attachments);
+        if (attachments == null) {
+            return;
+        }
+        for (Map.Entry<String, Object> entry : attachments.entrySet()) {
+            putAttachment(entry.getKey(), entry.getValue());
+        }
     }
 
     public void putAttachment(String key, Object value) {
         if (value == null) {
             return;
         }
-        if (containsAttachment(key) && (Constants.RPC_REQUEST.equals(key) || Constants.TRACE_PARAM.equals(key) ||
-                Constants.TRACE_FILTER_FINISHED.equals(key) || Constants.TRACE_TIMELINE.equals(key))) {
+        if (containsAttachment(key) && FRAMEWORKE_PARAM_KEYS.contains(key)) {
             logger.warn("Framework param[{}] cannot be put repeatedly.", key);
             return;
         }
@@ -81,12 +86,15 @@ public class RpcInvocation {
         return this.attachments.containsKey(key);
     }
 
-    public Object removeAttachment(String key) {
-        if (Constants.RPC_REQUEST.equals(key) || Constants.TRACE_PARAM.equals(key) ||
-                Constants.TRACE_FILTER_FINISHED.equals(key) || Constants.TRACE_TIMELINE.equals(key)) {
-            logger.warn("Framework param[{}] cannot be removed.", key);
-            return this;
-        }
-        return this.attachments.remove(key);
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("RpcInvocation{")
+                .append("serviceInterface=").append(serviceInterface)
+                .append(", method=").append(method)
+                .append(", arguments").append(arguments)
+                .append(", parameterTypes").append(parameterTypes)
+                .append(", attachments").append(attachments)
+                .append("}");
+        return sb.toString();
     }
 }

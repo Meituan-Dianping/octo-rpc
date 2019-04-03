@@ -50,7 +50,6 @@ public class ClientAsyncTest {
     public static void stop() {
         clientBeanFactory.destroy();
         serverBeanFactory.destroy();
-        ServiceBootstrap.clearGlobalResource();
     }
 
     @Test
@@ -58,55 +57,38 @@ public class ClientAsyncTest {
 
         try {
             //1.  同步调用
-            long start = System.currentTimeMillis();
-            System.out.println(client1.sayHello("Emma"));
-            long end = System.currentTimeMillis();
-            System.out.println("同步调用 cost:" + (end - start) + "ms");
+            Assert.assertEquals("Hello Emma", client1.sayHello("Emma"));
 
-            System.out.println();
             //2. 异步调用
-            start = System.currentTimeMillis();
             ResponseFuture<String> future = AsyncContext.getContext().asyncCall(new Callable<String>() {
                 @Override
                 public String call() throws Exception {
                     return client1.sayHello("Emma async");
                 }
             });
-            end = System.currentTimeMillis();
-            System.out.println("异步调用发起 cost:" + (end - start) + "ms");
+            Assert.assertEquals("Hello Emma async", future.get());
 
-            start = System.currentTimeMillis();
-            System.out.println(future.get());
-            end = System.currentTimeMillis();
-            System.out.println("异步调用获取结果 cost:" + (end - start) + "ms");
-
-            System.out.println();
             //3. 异步回调
-            start = System.currentTimeMillis();
+            final StringBuilder resultRecord = new StringBuilder();
             ResponseFuture<String> future2 = AsyncContext.getContext().asyncCall(new Callable<String>() {
                 @Override
                 public String call() throws Exception {
                     return client1.sayHello("Emma async callback");
                 }
             });
-            end = System.currentTimeMillis();
-            System.out.println("异步调用发起 cost:" + (end - start) + "ms");
-
-            start = System.currentTimeMillis();
             future2.setCallback(new ResponseCallback<String>() {
                 @Override
                 public void onComplete(String result) {
-                    System.out.println(result);
+                    resultRecord.append(result);
                 }
 
                 @Override
                 public void onError(Throwable e) {
-                    System.out.println("回调获得异常" + e.getMessage());
+                    resultRecord.append(e.getMessage());
                 }
             });
-            end = System.currentTimeMillis();
-            System.out.println("异步调用设置回调 cost:" + (end - start) + "ms");
-            Thread.sleep(5000);
+            Thread.sleep(3500);
+            Assert.assertEquals("Hello Emma async callback", resultRecord.toString());
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }

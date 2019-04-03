@@ -15,7 +15,7 @@
  */
 package com.meituan.dorado.test.thrift.filter;
 
-import com.meituan.dorado.test.thrift.api2.TestService;
+import com.meituan.dorado.test.thrift.apisuite.TestSuite;
 import com.meituan.dorado.test.thrift.apitwitter.Twitter;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -36,7 +36,7 @@ public class MultiClientTest {
     private static ClassPathXmlApplicationContext serverBeanFactory;
     private static Twitter.Iface client1;
     private static Twitter.Iface client2;
-    private static TestService.Iface client3;
+    private static TestSuite.Iface client3;
 
     private static StringBuilder client1ChainStr1 = new StringBuilder();
     private static StringBuilder client2ChainStr1 = new StringBuilder();
@@ -48,8 +48,11 @@ public class MultiClientTest {
         clientBeanFactory = new ClassPathXmlApplicationContext("thrift/filter/multiClient.xml");
         client1 = (Twitter.Iface) clientBeanFactory.getBean("clientProxy1");
         client2 = (Twitter.Iface) clientBeanFactory.getBean("clientProxy2");
-        client3 = (TestService.Iface) clientBeanFactory.getBean("clientProxy3");
-
+        client3 = (TestSuite.Iface) clientBeanFactory.getBean("clientProxy3");
+        ClientQpsLimitFilter.enable();
+        ServerQpsLimitFilter.enable();
+        ClientQpsLimitFilter.count.set(0);
+        ServerQpsLimitFilter.count.set(0);
         buildExpectInvokeChainStr();
     }
 
@@ -68,7 +71,7 @@ public class MultiClientTest {
         Assert.assertEquals(client2ChainStr1.toString(), FilterTest.invokeChainStr.toString());
 
         FilterTest.invokeChainStr = new StringBuilder();
-        String client3Ret = client3.testMock("Test");
+        String client3Ret = client3.testString("Test");
         Assert.assertEquals("Test", client3Ret);
         Assert.assertEquals(client3ChainStr1.toString(), FilterTest.invokeChainStr.toString());
     }
@@ -77,6 +80,8 @@ public class MultiClientTest {
     public static void stop() {
         clientBeanFactory.destroy();
         serverBeanFactory.destroy();
+        ClientQpsLimitFilter.disable();
+        ServerQpsLimitFilter.disable();
     }
 
     private static void buildExpectInvokeChainStr() {

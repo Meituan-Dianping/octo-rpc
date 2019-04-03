@@ -15,7 +15,7 @@
  */
 package com.meituan.dorado.banchmark.simple;
 
-import com.meituan.dorado.banchmark.simple.api.Echo;
+import com.meituan.dorado.test.thrift.api.Echo;
 import org.apache.thrift.TException;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 

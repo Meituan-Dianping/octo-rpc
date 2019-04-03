@@ -37,6 +37,8 @@ import com.meituan.dorado.rpc.handler.filter.FilterHandler;
 import com.meituan.dorado.rpc.handler.invoker.Invoker;
 import com.meituan.dorado.rpc.meta.RpcInvocation;
 import com.meituan.dorado.rpc.meta.RpcResult;
+import com.meituan.dorado.test.thrift.api.Echo;
+import com.meituan.dorado.test.thrift.api.EchoImpl;
 import com.meituan.dorado.transport.Channel;
 import com.meituan.dorado.transport.http.HttpSender;
 import com.meituan.dorado.transport.meta.DefaultRequest;
@@ -64,7 +66,7 @@ public class MockUtil {
     }
 
     public static ProviderConfig getProviderConfig() {
-        ServiceConfig  serviceConfig = getServiceConfig();
+        ServiceConfig serviceConfig = getServiceConfig();
         ProviderConfig config = new ProviderConfig();
         config.setPort(9001);
         config.setAppkey("com.meituan.octo.dorado.server");
@@ -99,7 +101,7 @@ public class MockUtil {
     public static RpcInvocation getAsyncRpcInvocation() throws Exception {
         Method method = HelloService.class.getMethod("sayHello", String.class);
         RpcInvocation invocation = new RpcInvocation(HelloService.class, method,
-                new Object[] {"hello"}, new Class<?>[] {String.class});
+                new Object[]{"hello"}, new Class<?>[]{String.class});
         invocation.putAttachment(Constants.ASYNC, true);
         return invocation;
     }
@@ -107,14 +109,14 @@ public class MockUtil {
     public static RpcInvocation getRpcInvocation() throws Exception {
         Method method = Echo.Iface.class.getMethod("echo", String.class);
         RpcInvocation invocation = new RpcInvocation(Echo.Iface.class, method,
-                new Object[] {"hello"}, new Class<?>[] {String.class});
+                new Object[]{"hello"}, new Class<?>[]{String.class});
         return invocation;
     }
 
     public static RpcInvocation getErrorRpcException() throws Exception {
         Method method = HelloService.class.getMethod("sayBye", String.class);
         RpcInvocation invocation = new RpcInvocation(HelloService.class, method,
-                new Object[] {"hello"}, new Class<?>[] {String.class});
+                new Object[]{"hello"}, new Class<?>[]{String.class});
         return invocation;
     }
 
@@ -133,7 +135,7 @@ public class MockUtil {
         return clientConfig;
     }
 
-    public static<T> List<Invoker<T>> getInvokerList() {
+    public static <T> List<Invoker<T>> getInvokerList() {
         List<Invoker<T>> invokers = new ArrayList<>();
         invokers.add(MockUtil.getInvoker());
 
@@ -271,7 +273,7 @@ public class MockUtil {
     }
 
     public static ServiceBean getServerBean() {
-        ServiceConfig  serviceConfig = getServiceConfig();
+        ServiceConfig serviceConfig = getServiceConfig();
         ServiceBean bean = new ServiceBean();
 
         bean.setPort(9001);
@@ -310,10 +312,12 @@ public class MockUtil {
         return new ResponseCallback() {
 
             @Override
-            public void onComplete(Object result) {}
+            public void onComplete(Object result) {
+            }
 
             @Override
-            public void onError(Throwable e) {}
+            public void onError(Throwable e) {
+            }
         };
     }
 

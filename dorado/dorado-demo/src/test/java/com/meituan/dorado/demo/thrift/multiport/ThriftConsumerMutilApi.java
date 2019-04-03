@@ -16,8 +16,8 @@
 package com.meituan.dorado.demo.thrift.multiport;
 
 import com.meituan.dorado.bootstrap.ServiceBootstrap;
-import com.meituan.dorado.demo.thrift.api.Echo;
-import com.meituan.dorado.demo.thrift.api.HelloService;
+import com.meituan.dorado.test.thrift.api.Echo;
+import com.meituan.dorado.test.thrift.api.HelloService;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class ThriftConsumerMutilApi {

@@ -38,7 +38,7 @@ public class NettyClient extends AbstractClient {
 
     private static final Logger logger = LoggerFactory.getLogger(NettyClient.class);
 
-    private static final NioEventLoopGroup WORKER_GROUP = new NioEventLoopGroup(Constants.DEFAULT_IO_WORKER_THREAD_COUNT, new DefaultThreadFactory("NettyClientWorkerGroup"));
+    private static final NioEventLoopGroup WORKER_GROUP = new NioEventLoopGroup(Constants.DEFAULT_IO_WORKER_THREAD_COUNT, new DefaultThreadFactory("DoradoClientNettyWorkerGroup"));
 
     private Bootstrap bootstrap;
     // 目前只支持一个Channel TODO 后续考虑连接池

@@ -16,13 +16,13 @@
 package com.meituan.dorado.codec.octo;
 
 
-import com.meituan.dorado.Echo;
 import com.meituan.dorado.codec.octo.meta.Header;
 import com.meituan.dorado.codec.octo.meta.MessageType;
 import com.meituan.dorado.codec.octo.meta.ResponseInfo;
 import com.meituan.dorado.codec.octo.meta.old.RequestHeader;
 import com.meituan.dorado.common.exception.ProtocolException;
 import com.meituan.dorado.common.exception.TimeoutException;
+import com.meituan.dorado.test.thrift.api.Echo;
 import com.meituan.dorado.trace.meta.TransportTraceInfo;
 import com.meituan.dorado.transport.meta.DefaultRequest;
 import com.meituan.dorado.transport.meta.DefaultResponse;

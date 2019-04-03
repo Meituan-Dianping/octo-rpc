@@ -17,12 +17,10 @@ package com.meituan.dorado.test.thrift.filter;
 
 import com.meituan.dorado.common.exception.FilterException;
 import com.meituan.dorado.common.exception.RemoteException;
-import com.meituan.dorado.rpc.handler.filter.AccessLogFilter;
 import com.meituan.dorado.rpc.handler.filter.Filter;
 import com.meituan.dorado.test.thrift.apitwitter.Tweet;
 import com.meituan.dorado.test.thrift.apitwitter.Twitter;
 import com.meituan.dorado.test.thrift.apitwitter.TwitterUnavailable;
-import org.apache.thrift.TApplicationException;
 import org.apache.thrift.TException;
 import org.junit.*;
 import org.slf4j.Logger;
@@ -56,7 +54,8 @@ public class FilterTest {
         serverBeanFactory = new ClassPathXmlApplicationContext("thrift/filter/server.xml");
         clientBeanFactory = new ClassPathXmlApplicationContext("thrift/filter/client.xml");
         client = (Twitter.Iface) clientBeanFactory.getBean("clientProxy");
-
+        ClientQpsLimitFilter.enable();
+        ServerQpsLimitFilter.enable();
         List<Filter> filters = new ArrayList<Filter>();
         filters.add(new TraceFilter());
         buildExpectInvokeChainStr();
@@ -107,10 +106,12 @@ public class FilterTest {
 
         try {
             String result = client.testString(testStr);
+            Assert.fail();
         } catch (Exception e) {
+            e.printStackTrace();
             Assert.assertEquals(RemoteException.class, e.getClass());
-            String exceptionMessage = "Remote exception: QpsLimited";
-            Assert.assertEquals(true, e.getMessage().contains(exceptionMessage));
+            String exceptionMessage = "QpsLimited";
+            Assert.assertEquals(true, e.getCause().getMessage().contains(exceptionMessage));
         }
     }
 

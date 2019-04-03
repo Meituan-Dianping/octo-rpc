@@ -27,6 +27,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ServerRejectExceptionTest {
 
@@ -41,7 +42,6 @@ public class ServerRejectExceptionTest {
         serverBeanFactory = new ClassPathXmlApplicationContext("thrift/exception/threadpool/thrift-provider.xml");
         clientBeanFactory = new ClassPathXmlApplicationContext("thrift/exception/threadpool/thrift-consumer.xml");
         client = (Twitter.Iface) clientBeanFactory.getBean("clientProxy");
-        Thread.sleep(5000);
     }
 
     @AfterClass
@@ -52,6 +52,8 @@ public class ServerRejectExceptionTest {
 
     @Test
     public void testRejectException() throws InterruptedException {
+        final StringBuilder otherException = new StringBuilder();
+        final AtomicInteger count = new AtomicInteger();
         ScheduledExecutorService executorService = Executors.newScheduledThreadPool(16);
         for(int i = 0; i < 16; i++) {
             executorService.execute(new Runnable() {
@@ -62,12 +64,25 @@ public class ServerRejectExceptionTest {
                             String result = client.testString("string");
                             System.out.println("testString: " + result);
                         } catch (Exception e) {
-                            Assert.assertTrue(e instanceof RejectedExecutionException);
+                            if (e.getCause().getMessage().contains("RejectedExecutionException")) {
+                                count.incrementAndGet();
+                            } else {
+                                otherException.append(e.getCause().getClass().getName());
+                            }
                         }
                     }
                 }
             });
         }
-        Thread.sleep(100000);
+        executorService.shutdown();
+        while(true){
+            if(executorService.isTerminated()){
+                System.out.println("所有的子线程都结束了！");
+                break;
+            }
+            Thread.sleep(1000);
+        }
+        Assert.assertEquals("", otherException.toString());
+        Assert.assertTrue(count.get() > 0);
     }
 }

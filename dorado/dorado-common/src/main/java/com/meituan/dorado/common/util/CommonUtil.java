@@ -147,4 +147,23 @@ public class CommonUtil {
         return clazzObj;
     }
 
+    public static String genExceptionMessage(Throwable e) {
+        StringBuilder errorMsg = new StringBuilder();
+        if (e.getCause() != null) {
+            errorMsg.append(e.getClass().getName()).append(" - root cause: ");
+            while (e.getCause() != null) {
+                e = e.getCause();
+            }
+        }
+        StackTraceElement[] stacks = e.getStackTrace();
+        if (stacks != null && stacks.length > 0) {
+            StackTraceElement stackTraceElement = stacks[0];
+            errorMsg.append(e.getClass().getName()).append(e.getMessage() == null ? "" : ":" + e.getMessage())
+                    .append("(").append(stackTraceElement.getFileName()).append(",").
+                    append(stackTraceElement.getMethodName()).append("() line ").append(stackTraceElement.getLineNumber()).append(")");
+        } else {
+            errorMsg.append(e.getClass().getName()).append(e.getMessage() == null ? "" : ":" + e.getMessage());
+        }
+        return errorMsg.toString();
+    }
 }

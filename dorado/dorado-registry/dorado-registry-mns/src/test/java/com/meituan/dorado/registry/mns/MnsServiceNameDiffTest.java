@@ -20,7 +20,6 @@ import com.meituan.dorado.bootstrap.provider.ProviderStatus;
 import com.meituan.dorado.registry.ProviderListener;
 import com.meituan.dorado.registry.meta.Provider;
 import com.meituan.dorado.registry.meta.SubscribeInfo;
-import com.meituan.dorado.registry.mns.util.MnsUtil;
 import com.octo.naming.common.thrift.model.ProtocolRequest;
 import com.octo.naming.common.thrift.model.SGService;
 import com.octo.naming.common.thrift.model.ServiceDetail;

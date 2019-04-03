@@ -33,6 +33,7 @@
         <module>dorado-test-client</module>
         <module>dorado-benchmark-client</module>
         <module>dorado-benchmark-server</module>
+        <module>dorado-test-api</module>
     </modules>
 
     <build>

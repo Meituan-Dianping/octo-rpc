@@ -29,16 +29,15 @@ public class ProtocolClientTest {
     private static final Logger logger = LoggerFactory.getLogger(ProtocolClientTest.class);
 
     private static ClassPathXmlApplicationContext clientBeanFactory;
-    private static com.meituan.dorado.test.thrift.exception.api.Echo.Iface client;
-    private static com.meituan.dorado.test.thrift.exception.api2.Echo.Iface client2;
+    private static com.meituan.dorado.test.thrift.exception.api1.ApiVersion1.Iface client;
+    private static com.meituan.dorado.test.thrift.exception.api2.ApiVersion1.Iface client2;
 
 
     @BeforeClass
-    public static void start() throws InterruptedException {
+    public static void start() {
         clientBeanFactory = new ClassPathXmlApplicationContext("thrift/exception/protocolClient/thrift-consumer.xml");
-        client = (com.meituan.dorado.test.thrift.exception.api.Echo.Iface) clientBeanFactory.getBean("clientProxy");
-        client2 = (com.meituan.dorado.test.thrift.exception.api2.Echo.Iface) clientBeanFactory.getBean("clientProxy2");
-        Thread.sleep(5000);
+        client = (com.meituan.dorado.test.thrift.exception.api1.ApiVersion1.Iface) clientBeanFactory.getBean("clientProxy");
+        client2 = (com.meituan.dorado.test.thrift.exception.api2.ApiVersion1.Iface) clientBeanFactory.getBean("clientProxy2");
     }
 
     @AfterClass
@@ -49,7 +48,7 @@ public class ProtocolClientTest {
     @Test
     public void testClient() {
         try {
-            com.meituan.dorado.test.thrift.exception.api.EchoResult result = client.echo("message", "param");
+            com.meituan.dorado.test.thrift.exception.api1.Result result = client.send("message", "param");
             logger.info("EchoResult: " + result);
         } catch (Exception e) {
             Assert.fail();
@@ -59,7 +58,7 @@ public class ProtocolClientTest {
     @Test
     public void testClient2() {
         try {
-            com.meituan.dorado.test.thrift.exception.api2.EchoResult result = client2.echo("message", "param");
+            com.meituan.dorado.test.thrift.exception.api2.Result result = client2.send("message", "param");
             logger.info("EchoResult2: " + result);
         } catch(Exception e) {
             Assert.fail();

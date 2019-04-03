@@ -57,13 +57,13 @@ public class NettyServer extends AbstractServer {
     protected void doStart() {
         if (Epoll.isAvailable()) {
             logger.info("NettyServer use EpollEventLoopGroup!");
-            bossGroup = new EpollEventLoopGroup(Constants.NIO_CONN_THREADS, new DefaultThreadFactory("NettyServerBossGroup"));
+            bossGroup = new EpollEventLoopGroup(Constants.NIO_CONN_THREADS, new DefaultThreadFactory("DoradoServerNettyBossGroup"));
             workerGroup = new EpollEventLoopGroup(providerConfig.getIoWorkerThreadCount(),
-                    new DefaultThreadFactory("NettyServerWorkerGroup"));
+                    new DefaultThreadFactory("DoradoServerNettyWorkerGroup"));
         } else {
-            bossGroup = new NioEventLoopGroup(Constants.NIO_CONN_THREADS, new DefaultThreadFactory("NettyServerBossGroup"));
+            bossGroup = new NioEventLoopGroup(Constants.NIO_CONN_THREADS, new DefaultThreadFactory("DoradoServerNettyBossGroup"));
             workerGroup = new NioEventLoopGroup(providerConfig.getIoWorkerThreadCount(),
-                    new DefaultThreadFactory("NettyServerWorkerGroup"));
+                    new DefaultThreadFactory("DoradoServerNettyWorkerGroup"));
         }
 
         final NettyServerHandler serverHandler = new NettyServerHandler(getChannelHandler());
@@ -74,9 +74,10 @@ public class NettyServer extends AbstractServer {
         bootstrap = new ServerBootstrap();
         bootstrap.group(bossGroup, workerGroup)
                 .channel(workerGroup instanceof EpollEventLoopGroup ? EpollServerSocketChannel.class : NioServerSocketChannel.class)
+                .option(ChannelOption.SO_REUSEADDR, true)
+                .option(ChannelOption.SO_BACKLOG, 1024)
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
                 .childOption(ChannelOption.TCP_NODELAY, true)
-                .childOption(ChannelOption.SO_REUSEADDR, true)
                 .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override

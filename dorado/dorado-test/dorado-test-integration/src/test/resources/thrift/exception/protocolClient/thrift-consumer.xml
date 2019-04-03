@@ -4,7 +4,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="clientProxy" class="com.meituan.dorado.config.service.spring.ReferenceBean" destroy-method="destroy">
-        <property name="serviceInterface" value="com.meituan.dorado.test.thrift.exception.api.Echo"/>
+        <property name="serviceInterface" value="com.meituan.dorado.test.thrift.exception.api1.ApiVersion1"/>
         <property name="directConnAddress" value="127.0.0.1:9001"/>
         <property name="appkey" value="com.meituan.octo.dorado.client"/>
         <property name="remoteAppkey" value="com.meituan.octo.dorado.server"/>
@@ -12,7 +12,7 @@
     </bean>
 
     <bean id="clientProxy2" class="com.meituan.dorado.config.service.spring.ReferenceBean" destroy-method="destroy">
-        <property name="serviceInterface" value="com.meituan.dorado.test.thrift.exception.api2.Echo"/>
+        <property name="serviceInterface" value="com.meituan.dorado.test.thrift.exception.api2.ApiVersion1"/>
         <property name="directConnAddress" value="127.0.0.1:9002"/>
         <property name="appkey" value="com.meituan.octo.dorado.client"/>
         <property name="remoteAppkey" value="com.meituan.octo.dorado.server"/>

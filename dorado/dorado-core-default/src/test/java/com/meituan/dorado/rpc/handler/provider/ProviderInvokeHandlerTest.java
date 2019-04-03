@@ -34,7 +34,7 @@ public class ProviderInvokeHandlerTest {
 
         try {
             Response response = invokeHandler.handle(request);
-            Assert.assertEquals(response.getResult().getReturnVal(), "hello");
+            Assert.assertEquals( "echo: hello", response.getResult().getReturnVal());
         } catch(Exception e) {
             Assert.fail();
         }

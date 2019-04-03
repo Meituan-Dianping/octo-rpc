@@ -37,7 +37,7 @@ public class TimeoutTest {
     private static HelloService.Iface client;
 
     @BeforeClass
-    public static void start() throws InterruptedException {
+    public static void start() {
         serverBeanFactory = new ClassPathXmlApplicationContext("thrift/timeout/thrift-provider.xml");
         clientBeanFactory = new ClassPathXmlApplicationContext("thrift/timeout/thrift-consumer.xml");
         client = (HelloService.Iface) clientBeanFactory.getBean("clientProxy");
@@ -54,9 +54,8 @@ public class TimeoutTest {
     @Test
     public void testSyncTimeout() {
         try {
-            client.sayHello("wxy");
+            client.sayHello("sync");
         } catch (Exception e) {
-            e.printStackTrace();
             Assert.assertTrue(e instanceof TimeoutException);
         }
     }
@@ -66,12 +65,12 @@ public class TimeoutTest {
         ResponseFuture<String> future = AsyncContext.getContext().asyncCall(new Callable<String>() {
             @Override
             public String call() throws Exception {
-                return client.sayHello("wxy-async");
+                return client.sayHello("async");
             }
         });
         try {
-            String response = future.get();
-            assert "Hello wxy-async".equals(response);
+            future.get();
+            Assert.fail();
         } catch (Exception e) {
             Assert.assertTrue(e instanceof TimeoutException);
         }
@@ -79,29 +78,31 @@ public class TimeoutTest {
 
     @Test
     public void testAsyncTimeoutWithCallback() {
+        final StringBuilder resultStr = new StringBuilder();
         ResponseFuture<String> future = AsyncContext.getContext().asyncCall(new Callable<String>() {
             @Override
             public String call() throws Exception {
-                return client.sayHello("wxy-async-callback");
+                return client.sayHello("async-callback");
             }
         });
         future.setCallback(new ResponseCallback<String>() {
             @Override
             public void onComplete(String result) {
-                assert "Hello wxy-async-callback".equals(result);
+                resultStr.append(result);
             }
 
             @Override
             public void onError(Throwable e) {
-                Assert.assertTrue(e instanceof TimeoutException);
+                resultStr.append(TimeoutException.class.getName());
             }
         });
 
         try {
-            Thread.sleep(5000);
+            Thread.sleep(3500);
         } catch (InterruptedException e) {
             Assert.fail(e.getMessage());
         }
+        Assert.assertEquals(TimeoutException.class.getName(), resultStr.toString());
     }
 
 }

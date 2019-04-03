@@ -18,12 +18,12 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="serviceProcessor" class="com.meituan.dorado.demo.thrift.api.HelloServiceImpl"></bean>
+    <bean id="serviceProcessor" class="com.meituan.dorado.test.thrift.api.HelloServiceImpl"></bean>
 
     <bean id="serverPublisher" class="com.meituan.dorado.config.service.spring.ServiceBean">
         <property name="serviceConfig">
             <bean class="com.meituan.dorado.config.service.ServiceConfig">
-                <property name="serviceInterface" value="com.meituan.dorado.demo.thrift.api.HelloService"/> <!-- 接口类 -->
+                <property name="serviceInterface" value="com.meituan.dorado.test.thrift.api.HelloService"/> <!-- 接口类 -->
                 <property name="serviceImpl" ref="serviceProcessor"/> <!-- 实现类 -->
             </bean>
         </property>
@@ -35,7 +35,7 @@
     <bean id="helloService" class="com.meituan.dorado.config.service.spring.ReferenceBean">
         <property name="appkey" value="com.meituan.octo.dorado.client"/>
         <property name="remoteAppkey" value="com.meituan.octo.dorado.server"/>
-        <property name="serviceInterface" value="com.meituan.dorado.demo.thrift.api.HelloService"/> <!-- 接口类 -->
+        <property name="serviceInterface" value="com.meituan.dorado.test.thrift.api.HelloService"/> <!-- 接口类 -->
         <property name="directConnAddress" value="127.0.0.1:9001"/>
         <property name="timeout" value="1000"/>
     </bean>

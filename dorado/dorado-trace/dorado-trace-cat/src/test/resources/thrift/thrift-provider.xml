@@ -18,7 +18,7 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="helloServiceProcessor" class="com.meituan.dorado.trace.cat.api.EchoImpl"></bean>
+    <bean id="helloServiceProcessor" class="com.meituan.dorado.test.thrift.api.EchoImpl"></bean>
 
     <bean id="serverPublisher" class="com.meituan.dorado.config.service.spring.ServiceBean" destroy-method="destroy">
         <property name="appkey" value="com.meituan.octo.dorado.server"/>
@@ -28,7 +28,7 @@
     </bean>
 
     <bean id="serviceConfig" class="com.meituan.dorado.config.service.ServiceConfig">
-        <property name="serviceInterface" value="com.meituan.dorado.trace.cat.api.Echo"/>
+        <property name="serviceInterface" value="com.meituan.dorado.test.thrift.api.Echo"/>
         <property name="serviceImpl" ref="helloServiceProcessor"/>
         <property name="bizMaxWorkerThreadCount" value="256"/>
     </bean>

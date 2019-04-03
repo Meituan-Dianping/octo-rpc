@@ -27,7 +27,6 @@ import com.meituan.dorado.trace.meta.TraceTimeline;
 import com.meituan.dorado.transport.meta.DefaultRequest;
 import com.meituan.dorado.transport.meta.DefaultResponse;
 import com.meituan.dorado.util.MethodUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.thrift.TApplicationException;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
@@ -40,16 +39,34 @@ import org.apache.thrift.transport.TMemoryBuffer;
 import org.apache.thrift.transport.TMemoryInputTransport;
 import org.apache.thrift.transport.TTransport;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class ThriftIDLSerializer extends ThriftMessageSerializer {
     private static final org.apache.thrift.protocol.TField MTRACE_FIELD_DESC = new org.apache.thrift.protocol.TField(
             "mtrace", org.apache.thrift.protocol.TType.STRUCT, (short) 32767);
     private static final String BYTE_ARRAY_CLASS_NAME = "[B";
+
+    private static final ConcurrentMap<String, Constructor<?>> cachedConstructor = new ConcurrentHashMap<>();
+
+    @Override
+    protected byte[] serialize(Object obj) throws Exception {
+        byte[] bodyBytes;
+        if (obj instanceof DefaultRequest) {
+            bodyBytes = doSerializeRequest((DefaultRequest) obj);
+        } else if (obj instanceof DefaultResponse) {
+            bodyBytes = doSerializeResponse((DefaultResponse) obj);
+        } else {
+            throw new ProtocolException("Thrift serialize  type is invalid, it should not happen.");
+        }
+        return bodyBytes;
+    }
 
     @Override
     protected Object deserialize4OctoThrift(byte[] buff, Object obj) throws Exception {
@@ -59,9 +76,9 @@ public class ThriftIDLSerializer extends ThriftMessageSerializer {
 
         Object result;
         if (obj instanceof DefaultRequest) {
-            result = doDeserializeRequest(buff, (DefaultRequest) obj, message, protocol);
+            result = doDeserializeRequest((DefaultRequest) obj, message, protocol);
         } else if (obj instanceof DefaultResponse) {
-            result = doDeserializeResponse(buff, (DefaultResponse) obj, message, protocol);
+            result = doDeserializeResponse((DefaultResponse) obj, message, protocol);
         } else {
             throw new ProtocolException("Thrift octoProtocol object type is invalid, it should not happen.");
         }
@@ -81,7 +98,7 @@ public class ThriftIDLSerializer extends ThriftMessageSerializer {
         if (message.type == TMessageType.CALL) {
             DefaultRequest request = new DefaultRequest(Long.valueOf(message.seqid));
             request.setServiceInterface(iface);
-            RpcInvocation rpcInvocation = doDeserializeRequest(buff, request, message, protocol);
+            RpcInvocation rpcInvocation = doDeserializeRequest(request, message, protocol);
             request.setData(rpcInvocation);
             obj = request;
 
@@ -90,7 +107,7 @@ public class ThriftIDLSerializer extends ThriftMessageSerializer {
             DefaultResponse response = new DefaultResponse(Long.valueOf(message.seqid));
             response.setServiceInterface(iface);
             try {
-                RpcResult rpcResult = doDeserializeResponse(buff, response, message, protocol);
+                RpcResult rpcResult = doDeserializeResponse(response, message, protocol);
                 response.setResult(rpcResult);
             } catch (Exception e) {
                 response.setException(e);
@@ -109,7 +126,30 @@ public class ThriftIDLSerializer extends ThriftMessageSerializer {
         return obj;
     }
 
-    protected RpcInvocation doDeserializeRequest(byte[] buff, DefaultRequest request, TMessage message,
+    private byte[] doSerializeRequest(DefaultRequest request) throws Exception {
+        RpcInvocation rpcInvocation = request.getData();
+        TMessage message = new TMessage(rpcInvocation.getMethod().getName(), TMessageType.CALL, request.getSeqToInt());
+
+        TMemoryBuffer transport = new TMemoryBuffer(1024);
+        TBinaryProtocol protocol = new TBinaryProtocol(transport);
+
+        protocol.writeMessageBegin(message);
+        if (!request.isOctoProtocol()) {
+            // 不影响原生thrift解码
+            RequestHeader requestHeader = MetaUtil.convertRequestToOldProtocolHeader(request);
+            protocol.writeFieldBegin(MTRACE_FIELD_DESC);
+            requestHeader.write(protocol);
+            protocol.writeFieldEnd();
+        }
+
+        serializeArguments(rpcInvocation, protocol);
+        protocol.writeMessageEnd();
+
+        protocol.getTransport().flush();
+        return transport.getArray();
+    }
+
+    protected RpcInvocation doDeserializeRequest(DefaultRequest request, TMessage message,
                                                  TProtocol protocol) throws Exception {
         if (message.type != TMessageType.CALL) {
             throw new ProtocolException("Thrift deserialize request: message type is invalid.");
@@ -126,140 +166,17 @@ public class ThriftIDLSerializer extends ThriftMessageSerializer {
             }
             request.setServiceName(ThriftUtil.getIDLClassName(request.getServiceInterface()));
         }
-        String argsClassName = ThriftUtil.generateArgsClassName(
-                request.getServiceInterface().getName(), message.name);
-
-        TBase args = getClazzInstance(argsClassName);
-        try {
-            args.read(protocol);
-        } catch (TException e) {
-            throw new ProtocolException("Thrift deserialize request failed.", e);
-        }
 
         List<Object> arguments = new ArrayList<>();
         List<Class<?>> parameterTypes = new ArrayList<>();
-        int index = 1;
-        while (true) {
-            TFieldIdEnum fieldIdEnum = args.fieldForId(index++);
-            if (fieldIdEnum == null) {
-                break;
-            }
+        deserializeArguments(request.getServiceInterface().getName(), message.name, protocol, arguments, parameterTypes);
 
-            String fieldName = fieldIdEnum.getFieldName();
-            Class<?> clazz = cachedClass.get(argsClassName);
-            Method getMethod = ThriftUtil.obtainGetMethod(clazz, fieldName);
-
-            if (BYTE_ARRAY_CLASS_NAME.equals(getMethod.getReturnType().getName())) {
-                parameterTypes.add(ByteBuffer.class);
-                arguments.add(ByteBuffer.wrap((byte[]) args.getFieldValue(fieldIdEnum)));
-            } else {
-                parameterTypes.add(getMethod.getReturnType());
-                arguments.add(args.getFieldValue(fieldIdEnum));
-            }
-        }
         Class<?>[] parameterTypeArray = parameterTypes.toArray(new Class[parameterTypes.size()]);
         Method method = obtainMethod(request.getServiceInterface(), message.name, parameterTypeArray);
 
         RpcInvocation invocation = new RpcInvocation(request.getServiceInterface(), method, arguments.toArray(), parameterTypeArray);
         request.setThriftMsgInfo(new ThriftMessageInfo(message.name, message.seqid));
         return invocation;
-    }
-
-    protected RpcResult doDeserializeResponse(byte[] buff, DefaultResponse response, TMessage message,
-                                              TProtocol protocol) throws Exception {
-        RpcResult rpcResult = new RpcResult();
-        if (message.type == TMessageType.REPLY) {
-            String resultClassName = ThriftUtil.generateResultClassName(response.getServiceInterface().getName(),
-                    message.name);
-            if (StringUtils.isEmpty(resultClassName)) {
-                throw new ProtocolException("Thrift deserialize response: resultClassName is empty.");
-            }
-
-            TBase result = getClazzInstance(resultClassName);
-            try {
-                result.read(protocol);
-            } catch (TException e) {
-                throw new ProtocolException("Thrift deserialize response failed.", e);
-            }
-
-            int index = 0;
-            Object realResult = null;
-            while (true) {
-                TFieldIdEnum fieldIdEnum = result.fieldForId(index++);
-                if (fieldIdEnum == null) {
-                    if (index == 1) {
-                        continue;
-                    }
-                    break;
-                }
-                Object fieldValue = result.getFieldValue(fieldIdEnum);
-                if (fieldValue != null) {
-                    realResult = fieldValue;
-                    break;
-                }
-            }
-
-            if (realResult instanceof Exception) {
-                response.setException((Exception) realResult);
-            }
-            rpcResult.setReturnVal(realResult);
-        } else if (message.type == TMessageType.EXCEPTION) {
-            TApplicationException exception = TApplicationException.read(protocol);
-            MetaUtil.wrapException(exception.getMessage(), response);
-        }
-        if (!response.isOctoProtocol() && hasOldRequestHeader(protocol)) {
-            RequestHeader requestHeader = new RequestHeader();
-            protocol.readFieldBegin();
-            requestHeader.read(protocol);
-            protocol.readFieldEnd();
-        }
-        return rpcResult;
-    }
-
-    @Override
-    protected byte[] serialize(Object obj) throws Exception {
-        byte[] bodyBytes;
-        if (obj instanceof DefaultRequest) {
-            bodyBytes = doSerializeRequest((DefaultRequest) obj);
-        } else if (obj instanceof DefaultResponse) {
-            bodyBytes = doSerializeResponse((DefaultResponse) obj);
-        } else {
-            throw new ProtocolException("Thrift serialize  type is invalid, it should not happen.");
-        }
-        return bodyBytes;
-    }
-
-    private byte[] doSerializeRequest(DefaultRequest request) throws Exception {
-        RpcInvocation rpcInvocation = request.getData();
-        TMessage message = new TMessage(rpcInvocation.getMethod().getName(), TMessageType.CALL, request.getSeqToInt());
-
-        String argsClassName = ThriftUtil.generateArgsClassName(
-                request.getServiceInterface().getName(), rpcInvocation.getMethod().getName());
-        TBase args = getClazzInstance(argsClassName);
-
-        Object[] arguments = rpcInvocation.getArguments();
-        if (arguments != null) {
-            for (int i = 0; i < arguments.length; i++) {
-                if (arguments[i] != null) {
-                    args.setFieldValue(args.fieldForId(i + 1), arguments[i]);
-                }
-            }
-        }
-
-        TMemoryBuffer transport = new TMemoryBuffer(1024);
-        TBinaryProtocol protocol = new TBinaryProtocol(transport);
-        protocol.writeMessageBegin(message);
-        if (!request.isOctoProtocol()) {
-            // 不影响原生thrift解码
-            RequestHeader requestHeader = MetaUtil.convertRequestToOldProtocolHeader(request);
-            protocol.writeFieldBegin(MTRACE_FIELD_DESC);
-            requestHeader.write(protocol);
-            protocol.writeFieldEnd();
-        }
-        args.write(protocol);
-        protocol.writeMessageEnd();
-        protocol.getTransport().flush();
-        return transport.getArray();
     }
 
     private byte[] doSerializeResponse(DefaultResponse response) throws Exception {
@@ -269,45 +186,8 @@ public class ThriftIDLSerializer extends ThriftMessageSerializer {
         }
 
         String resultClassName = ThriftUtil.generateResultClassName(response.getServiceInterface().getName(), thriftMsgInfo.methodName);
-        TBase resultObj = getClazzInstance(resultClassName);
-
-        TApplicationException applicationException = null;
-        if (response.getException() != null) {
-            Throwable exception = response.getException();
-            int index = 1;
-            boolean found = false;
-
-            while (true) {
-                TFieldIdEnum fieldIdEnum = resultObj.fieldForId(index++);
-                if (fieldIdEnum == null) {
-                    break;
-                }
-
-                String fieldName = fieldIdEnum.getFieldName();
-                Class<?> clazz = cachedClass.get(resultClassName);
-                Method getMethod = ThriftUtil.obtainGetMethod(clazz, fieldName);
-
-                Throwable causeException = response.getException().getCause();
-                if (causeException != null && getMethod.getReturnType().equals(causeException.getClass())) {
-                    found = true;
-                    resultObj.setFieldValue(fieldIdEnum, causeException);
-                    break;
-                }
-            }
-
-            if (!found) {
-                if (exception.getCause() != null) {
-                    applicationException = new TApplicationException(exception.getMessage() + ", caused by " + exception.getCause().getMessage());
-                } else {
-                    applicationException = new TApplicationException(exception.getMessage());
-                }
-            }
-        } else {
-            Object realResult = (response.getResult()).getReturnVal();
-            if (realResult != null) {
-                resultObj.setFieldValue(resultObj.fieldForId(0), realResult);
-            }
-        }
+        TBase resultClassObj = getClazzInstance(resultClassName);
+        TApplicationException applicationException = serializeResult(response, resultClassObj);
 
         TMessage message;
         if (applicationException != null) {
@@ -324,7 +204,7 @@ public class ThriftIDLSerializer extends ThriftMessageSerializer {
                 applicationException.write(protocol);
                 break;
             case TMessageType.REPLY:
-                resultObj.write(protocol);
+                resultClassObj.write(protocol);
                 break;
             default:
         }
@@ -340,6 +220,160 @@ public class ThriftIDLSerializer extends ThriftMessageSerializer {
         return transport.getArray();
     }
 
+    protected RpcResult doDeserializeResponse(DefaultResponse response, TMessage message,
+                                              TProtocol protocol) throws Exception {
+        RpcResult rpcResult = new RpcResult();
+        if (message.type == TMessageType.REPLY) {
+            Object realResult = deserializeResult(protocol, response.getServiceInterface().getName(), message.name);
+            if (realResult instanceof Exception) {
+                response.setException((Exception) realResult);
+            }
+            rpcResult.setReturnVal(realResult);
+        } else if (message.type == TMessageType.EXCEPTION) {
+            TApplicationException exception = TApplicationException.read(protocol);
+            MetaUtil.wrapException(exception, response);
+        }
+        if (!response.isOctoProtocol() && hasOldRequestHeader(protocol)) {
+            RequestHeader requestHeader = new RequestHeader();
+            protocol.readFieldBegin();
+            requestHeader.read(protocol);
+            protocol.readFieldEnd();
+        }
+        return rpcResult;
+    }
+
+    private void serializeArguments(RpcInvocation rpcInvocation, TBinaryProtocol protocol) throws TException {
+        String argsClassName = ThriftUtil.generateArgsClassName(
+                rpcInvocation.getServiceInterface().getName(), rpcInvocation.getMethod().getName());
+        TBase argsClassObj = getClazzInstance(argsClassName);
+
+        if (rpcInvocation.getArguments() == null) {
+            argsClassObj.write(protocol);
+            return;
+        }
+
+        String argsFieldsClassName = ThriftUtil.generateIDLFieldsClassName(argsClassName);
+        Class<?> argsFieldsClazz = getClazz(argsFieldsClassName);
+
+        Object[] fieldEnums = argsFieldsClazz.getEnumConstants();
+        if (fieldEnums == null && fieldEnums.length != rpcInvocation.getArguments().length) {
+            throw new ProtocolException("argument num is " + rpcInvocation.getArguments().length + " is not match with fields in " + argsFieldsClassName);
+        }
+        for (int i = 0; i < fieldEnums.length; i++) {
+            TFieldIdEnum fieldIdEnum = (TFieldIdEnum) fieldEnums[i];
+            if (fieldIdEnum == null) {
+                continue;
+            }
+            argsClassObj.setFieldValue(fieldIdEnum, rpcInvocation.getArguments()[i]);
+        }
+        argsClassObj.write(protocol);
+    }
+
+    private void deserializeArguments(String ifaceName, String methodName, TProtocol protocol, List<Object> arguments, List<Class<?>> parameterTypes) {
+        String argsClassName = ThriftUtil.generateArgsClassName(
+                ifaceName, methodName);
+        TBase argsClassObj = getClazzInstance(argsClassName);
+        try {
+            argsClassObj.read(protocol);
+        } catch (TException e) {
+            throw new ProtocolException("Thrift deserialize arguments failed.", e);
+        }
+
+        String argsFieldsClassName = ThriftUtil.generateIDLFieldsClassName(argsClassName);
+        Class<?> argsFieldsClazz = getClazz(argsFieldsClassName);
+
+        if (argsFieldsClazz.getEnumConstants() == null) {
+            return;
+        }
+        for (Object fieldEnum : argsFieldsClazz.getEnumConstants()) {
+            TFieldIdEnum fieldIdEnum = (TFieldIdEnum) fieldEnum;
+            if (fieldIdEnum == null) {
+                continue;
+            }
+            Object argument = argsClassObj.getFieldValue(fieldIdEnum);
+            String fieldName = fieldIdEnum.getFieldName();
+            Method getMethod = ThriftUtil.obtainGetMethod(argsClassObj.getClass(), fieldName);
+            if (BYTE_ARRAY_CLASS_NAME.equals(getMethod.getReturnType().getName())) {
+                parameterTypes.add(ByteBuffer.class);
+                arguments.add(ByteBuffer.wrap((byte[]) argument));
+            } else {
+                parameterTypes.add(getMethod.getReturnType());
+                arguments.add(argument);
+            }
+        }
+    }
+
+    private TApplicationException serializeResult(DefaultResponse response, TBase resultClassObj) {
+        TApplicationException applicationException = null;
+        String resultFieldsClassName = ThriftUtil.generateIDLFieldsClassName(resultClassObj.getClass().getName());
+        Class<?> resultFieldsClazz = getClazz(resultFieldsClassName);
+        if (response.getException() != null) {
+            boolean hasIDLException = false;
+            Object[] fieldEnums = resultFieldsClazz.getEnumConstants();
+            if (fieldEnums != null && fieldEnums.length > 1) {
+                for (int i = 1; i < fieldEnums.length; i++) {
+                    TFieldIdEnum fieldIdEnum = (TFieldIdEnum) fieldEnums[i];
+                    if (fieldIdEnum == null) {
+                        continue;
+                    }
+
+                    String fieldName = fieldIdEnum.getFieldName();
+                    Method getMethod = ThriftUtil.obtainGetMethod(resultClassObj.getClass(), fieldName);
+
+                    Throwable causeException = response.getException().getCause();
+                    if (causeException != null && getMethod.getReturnType().equals(causeException.getClass())) {
+                        hasIDLException = true;
+                        resultClassObj.setFieldValue(fieldIdEnum, causeException);
+                        break;
+                    }
+                }
+            }
+            if (!hasIDLException) {
+                Throwable exception = response.getException();
+                applicationException = new TApplicationException(CommonUtil.genExceptionMessage(exception));
+            }
+        } else {
+            Object realResult = (response.getResult()).getReturnVal();
+            if (realResult != null) {
+                resultClassObj.setFieldValue(resultClassObj.fieldForId(0), realResult);
+            }
+        }
+        return applicationException;
+    }
+
+    private Object deserializeResult(TProtocol protocol, String ifaceName, String methodName) {
+        String resultClassName = ThriftUtil.generateResultClassName(ifaceName, methodName);
+        TBase resultClassObj = getClazzInstance(resultClassName);
+        try {
+            resultClassObj.read(protocol);
+        } catch (TException e) {
+            throw new ProtocolException("Thrift deserialize result failed.", e);
+        }
+        Object realResult = null;
+        String resultFieldsClassName = ThriftUtil.generateIDLFieldsClassName(resultClassObj.getClass().getName());
+        Class<?> resultFieldsClazz = getClazz(resultFieldsClassName);
+        Object[] resultFieldsEnums = resultFieldsClazz.getEnumConstants();
+        if (resultFieldsEnums == null) {
+            return realResult;
+        }
+        // 避免基本类型默认值导致异常返回被忽略, 从后面开始获取值
+        for (int i = resultFieldsEnums.length - 1; i >= 0; i--) {
+            TFieldIdEnum fieldIdEnum = (TFieldIdEnum) resultFieldsEnums[i];
+            if (fieldIdEnum == null) {
+                continue;
+            }
+            Object fieldValue = resultClassObj.getFieldValue(fieldIdEnum);
+            if (fieldValue != null) {
+                if (BYTE_ARRAY_CLASS_NAME.equals(fieldValue.getClass().getName())) {
+                    fieldValue = ByteBuffer.wrap((byte[]) fieldValue);
+                }
+                realResult = fieldValue;
+                break;
+            }
+        }
+        return realResult;
+    }
+
     private Method obtainMethod(Class<?> clazz, String methodName, Class<?>... paramTypes) throws NoSuchMethodException {
         String methodSignature = MethodUtil.generateMethodSignature(clazz, methodName, paramTypes);
         Method method = cachedMethod.get(methodSignature);
@@ -351,23 +385,27 @@ public class ThriftIDLSerializer extends ThriftMessageSerializer {
     }
 
     private TBase getClazzInstance(String className) {
-        Class clazz = cachedClass.get(className);
+        Class clazz = getClazz(className);
+        TBase args;
+        try {
+            args = (TBase) clazz.newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new ProtocolException("Class " + className + " new instance failed.", e);
+        }
+        return args;
+    }
+
+    private Class<?> getClazz(String className) {
+        Class<?> clazz = cachedClass.get(className);
         if (clazz == null) {
             try {
                 clazz = ClassLoaderUtil.loadClass(className);
                 cachedClass.putIfAbsent(className, clazz);
             } catch (ClassNotFoundException e) {
-                throw new ProtocolException("Thrift serialize request: class" + className + " load failed.", e);
+                throw new ProtocolException("Class " + className + " load failed.", e);
             }
         }
-
-        TBase args;
-        try {
-            args = (TBase) clazz.newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
-            throw new ProtocolException("Thrift serialize request: class" + className + " new instance failed.", e);
-        }
-        return args;
+        return clazz;
     }
 
     private boolean hasOldRequestHeader(TProtocol protocol) {

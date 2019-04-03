@@ -35,11 +35,10 @@ public class BusinessExceptionTest {
     private static Twitter.Iface client;
 
     @BeforeClass
-    public static void start() throws InterruptedException {
+    public static void start() {
         serverBeanFactory = new ClassPathXmlApplicationContext("thrift/exception/business/thrift-provider.xml");
         clientBeanFactory = new ClassPathXmlApplicationContext("thrift/exception/business/thrift-consumer.xml");
         client = (Twitter.Iface) clientBeanFactory.getBean("clientProxy");
-        Thread.sleep(5000);
     }
 
     @AfterClass

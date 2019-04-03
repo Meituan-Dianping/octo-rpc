@@ -22,7 +22,7 @@
     <bean id="client1" class="com.meituan.dorado.config.service.spring.ReferenceBean">
         <property name="appkey" value="com.meituan.octo.dorado.client"/>
         <property name="remoteAppkey" value="com.meituan.octo.dorado.server"/>
-        <property name="serviceInterface" value="com.meituan.dorado.test.echo.Echo"/> <!-- 接口类 -->
+        <property name="serviceInterface" value="com.meituan.dorado.test.thrift.api.Echo"/> <!-- 接口类 -->
         <property name="protocol" value="thrift"/>
         <property name="timeout" value="1000"/>
         <property name="registry" value="mns"/>
@@ -31,7 +31,7 @@
     <bean id="client2" class="com.meituan.dorado.config.service.spring.ReferenceBean">
         <property name="appkey" value="com.meituan.octo.dorado.client"/>
         <property name="remoteAppkey" value="com.meituan.octo.dorado.server"/>
-        <property name="serviceInterface" value="com.meituan.dorado.test.echo.Echo"/> <!-- 接口类 -->
+        <property name="serviceInterface" value="com.meituan.dorado.test.thrift.api.Echo"/> <!-- 接口类 -->
         <property name="protocol" value="thrift"/>
         <property name="timeout" value="1000"/>
         <property name="registry" value="mns"/>
@@ -40,7 +40,7 @@
     <bean id="client3" class="com.meituan.dorado.config.service.spring.ReferenceBean">
         <property name="appkey" value="com.meituan.octo.dorado.client"/>
         <property name="remoteAppkey" value="com.meituan.octo.dorado.server"/>
-        <property name="serviceInterface" value="com.meituan.dorado.test.echo.Echo"/> <!-- 接口类 -->
+        <property name="serviceInterface" value="com.meituan.dorado.test.thrift.api.Echo"/> <!-- 接口类 -->
         <property name="protocol" value="thrift"/>
         <property name="timeout" value="1000"/>
         <property name="registry" value="mns"/>

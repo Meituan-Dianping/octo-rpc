@@ -18,9 +18,7 @@ package com.meituan.dorado.common.util;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class URLUtilTest {
@@ -33,16 +31,18 @@ public class URLUtilTest {
 
     @Test
     public void testGetURIParameter() {
-        Map<String, List<String>> params = URLUtil.getURIParameter("http://abcd.com.cn?a=v&a=f&b=c&b=3");
-        Map<String, List<String>> result = new HashMap<>();
-        result.put("a", Arrays.asList("v", "f"));
-        result.put("b", Arrays.asList("c", "3"));
+        Map<String, String> params = new HashMap<>();
+        String path = URLUtil.getURIPathAndParameter("http://abcd.com.cn?name=emma&age=18", params);
+        Map<String, String> result = new HashMap<>();
+        result.put("name", "emma");
+        result.put("age", "18");
         Assert.assertEquals(params, result);
 
-        params = URLUtil.getURIParameter("http://abcd.com.cn?a=v,f&b=c,3");
+        params.clear();
+        path = URLUtil.getURIPathAndParameter("http://abcd.com.cn?serviceName=com.Twitter&method=echo", params);
         result = new HashMap<>();
-        result.put("a", Arrays.asList("v,f"));
-        result.put("b", Arrays.asList("c,3"));
+        result.put("serviceName", "com.Twitter");
+        result.put("method", "echo");
         Assert.assertEquals(params, result);
     }
 }

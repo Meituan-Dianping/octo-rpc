@@ -36,6 +36,9 @@ public class ServerQpsLimitFilter implements Filter {
 
     @Override
     public RpcResult filter(RpcInvocation invocation, FilterHandler nextHandler) throws Throwable {
+        if (!enable) {
+            return nextHandler.handle(invocation);
+        }
         FilterTest.invokeChainStr.append(this.getClass().getSimpleName());
 
         logger.info("ServerQpsLimitFilter");

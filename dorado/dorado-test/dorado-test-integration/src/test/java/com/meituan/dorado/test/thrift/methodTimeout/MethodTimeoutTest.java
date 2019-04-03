@@ -19,6 +19,8 @@ package com.meituan.dorado.test.thrift.methodTimeout;
 import com.meituan.dorado.common.exception.TimeoutException;
 import com.meituan.dorado.test.thrift.api.Echo;
 import com.meituan.dorado.test.thrift.api.HelloService;
+import com.meituan.dorado.test.thrift.filter.ClientQpsLimitFilter;
+import com.meituan.dorado.test.thrift.filter.ServerQpsLimitFilter;
 import org.apache.thrift.TException;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -37,7 +39,8 @@ public class MethodTimeoutTest {
         serverBeanFactory = new ClassPathXmlApplicationContext("thrift/methodTimeout/thrift-provider.xml");
         clientBeanFactory = new ClassPathXmlApplicationContext("thrift/methodTimeout/thrift-consumer.xml");
         client = (HelloService.Iface) clientBeanFactory.getBean("clientProxy");
-        Thread.sleep(5000);
+        ClientQpsLimitFilter.disable();
+        ServerQpsLimitFilter.disable();
     }
 
     @AfterClass
@@ -51,7 +54,7 @@ public class MethodTimeoutTest {
         try {
             client.sayHello("this is a message");
         } catch (Exception e) {
-            Assert.assertTrue(e instanceof TimeoutException);
+            Assert.assertEquals(TimeoutException.class, e);
         }
     }
 }

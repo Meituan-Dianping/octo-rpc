@@ -45,6 +45,8 @@ public class FilterTest {
     public static void init() {
         List<Filter> filters = new ArrayList<Filter>();
         filters.add(new TraceTestFilter());
+        ClientQpsLimitFilter.enable();
+        ServerQpsLimitFilter.enable();
         buildExpectInvokeChainStr();
     }
 

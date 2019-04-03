@@ -18,10 +18,10 @@
        xmlns="http://www.springframework.org/schema/beans"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="serviceProcessor" class="com.meituan.dorado.banchmark.simple.api.EchoImpl"/>
+    <bean id="serviceProcessor" class="com.meituan.dorado.test.thrift.api.EchoImpl"/>
 
     <bean id="serviceConfig" class="com.meituan.dorado.config.service.ServiceConfig">
-        <property name="serviceInterface" value="com.meituan.dorado.banchmark.simple.api.Echo"/>
+        <property name="serviceInterface" value="com.meituan.dorado.test.thrift.api.Echo"/>
         <property name="serviceImpl" ref="serviceProcessor"/>
         <property name="bizMaxWorkerThreadCount" value="256"/>
     </bean>
@@ -43,7 +43,7 @@
     </bean>
 
     <bean id="clientProxy" class="com.meituan.dorado.config.service.spring.ReferenceBean" destroy-method="destroy">
-        <property name="serviceInterface" value="com.meituan.dorado.banchmark.simple.api.Echo"/>
+        <property name="serviceInterface" value="com.meituan.dorado.test.thrift.api.Echo"/>
         <property name="directConnAddress" value="127.0.0.1:8889"/>
         <property name="timeout" value="1000"/>
         <property name="appkey" value="com.meituan.octo.dorado.client"/>

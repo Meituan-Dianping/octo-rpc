@@ -19,7 +19,7 @@ package com.meituan.dorado.trace.cat;
 import com.meituan.dorado.common.exception.TimeoutException;
 import com.meituan.dorado.rpc.AsyncContext;
 import com.meituan.dorado.rpc.ResponseFuture;
-import com.meituan.dorado.trace.cat.api.Echo;
+import com.meituan.dorado.test.thrift.api.Echo;
 import org.apache.thrift.TException;
 import org.junit.AfterClass;
 import org.junit.Assert;

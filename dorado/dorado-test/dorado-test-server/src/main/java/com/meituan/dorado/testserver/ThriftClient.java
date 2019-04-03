@@ -17,7 +17,7 @@
 package com.meituan.dorado.testserver;
 
 import com.meituan.dorado.bootstrap.ServiceBootstrap;
-import com.meituan.dorado.test.echo.Echo;
+import com.meituan.dorado.test.thrift.api.Echo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;

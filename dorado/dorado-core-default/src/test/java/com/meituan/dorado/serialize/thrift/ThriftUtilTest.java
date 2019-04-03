@@ -16,8 +16,8 @@
 package com.meituan.dorado.serialize.thrift;
 
 
-import com.meituan.dorado.Echo;
 import com.meituan.dorado.common.exception.ProtocolException;
+import com.meituan.dorado.test.thrift.api.Echo;
 import com.meituan.dorado.transport.meta.DefaultRequest;
 import org.junit.Assert;
 import org.junit.Test;
@@ -35,13 +35,13 @@ public class ThriftUtilTest {
         Assert.assertEquals(methodName, "setTest");
 
         methodName = ThriftUtil.generateMethodArgsClassName("testService", "testMethod");
-        Assert.assertEquals(methodName, "testService&testMethod_args");
+        Assert.assertEquals(methodName, "testService$testMethod_args");
 
         methodName = ThriftUtil.generateMethodArgsClassName("test$inner", "testMethod");
         Assert.assertEquals(methodName, "test$testMethod_args");
 
         methodName = ThriftUtil.generateMethodResultClassName("testService", "testMethod");
-        Assert.assertEquals(methodName, "testService&testMethod_result");
+        Assert.assertEquals(methodName, "testService$testMethod_result");
 
         methodName = ThriftUtil.generateMethodResultClassName("test$inner", "testMethod");
         Assert.assertEquals(methodName, "test$testMethod_result");

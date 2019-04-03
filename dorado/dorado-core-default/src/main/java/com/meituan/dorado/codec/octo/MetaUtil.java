@@ -26,8 +26,10 @@ import com.meituan.dorado.trace.meta.TraceTimeline;
 import com.meituan.dorado.trace.meta.TransportTraceInfo;
 import com.meituan.dorado.transport.meta.DefaultRequest;
 import com.meituan.dorado.transport.meta.DefaultResponse;
+import org.apache.commons.lang3.StringUtils;
 
 import static com.meituan.dorado.codec.octo.meta.StatusCode.RpcException;
+import static com.meituan.dorado.codec.octo.meta.StatusCode.Success;
 
 public class MetaUtil {
 
@@ -246,18 +248,40 @@ public class MetaUtil {
         }
     }
 
-    public static void wrapException(String expMessage, DefaultResponse response) {
+    public static void wrapException(Exception exception, DefaultResponse response) {
+        if (exception == null) {
+            return;
+        }
+        String expMessage = exception.getMessage();
+        if (StringUtils.isBlank(expMessage)) {
+            expMessage = expMessage.getClass().getName();
+        }
+        if (StatusCode.findByValue(response.getStatusCode() & 0xff) == Success) {
+            if (expMessage.contains(ProtocolException.class.getName())) {
+                response.setStatusCode((byte) StatusCode.ProtocolException.getValue());
+            } else if (expMessage.contains(DegradeException.class.getName())) {
+                response.setStatusCode((byte) StatusCode.DegradeException.getValue());
+            } else if (expMessage.contains(SecurityException.class.getName())) {
+                response.setStatusCode((byte) StatusCode.SecurityException.getValue());
+            } else if (expMessage.contains(TransportException.class.getName())) {
+                response.setStatusCode((byte) StatusCode.TransportException.getValue());
+            } else if (expMessage.contains(ServiceException.class.getName())) {
+                response.setStatusCode((byte) StatusCode.ServiceException.getValue());
+            } else if (expMessage.contains(ApplicationException.class.getName())) {
+                response.setStatusCode((byte) StatusCode.ApplicationException.getValue());
+            } else {
+                response.setStatusCode((byte) RpcException.getValue());
+            }
+        }
         switch (StatusCode.findByValue(response.getStatusCode() & 0xff)) {
-            case Success:
-                break;
             case ApplicationException:
                 response.setException(new ApplicationException("Probably be business exception, cause by: " + expMessage));
                 break;
-            case RuntimeException:
-                response.setException(new ApplicationException(expMessage));
-                break;
             case RpcException:
                 response.setException(new RpcException(expMessage));
+                break;
+            case RuntimeException:
+                response.setException(new ApplicationException(expMessage));
                 break;
             case TransportException:
                 response.setException(new TransportException(expMessage));
@@ -275,6 +299,7 @@ public class MetaUtil {
                 response.setException(new RemoteException("Remote exception: " + expMessage));
                 break;
             default:
+                response.setException(new RpcException(expMessage));
         }
     }
 }

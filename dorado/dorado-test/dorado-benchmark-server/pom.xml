@@ -38,6 +38,11 @@
             <artifactId>dorado</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.meituan.octo</groupId>
+            <artifactId>dorado-test-api</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>

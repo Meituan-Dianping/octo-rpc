@@ -49,7 +49,7 @@
     </bean>
 
     <bean id="clientProxy3" class="com.meituan.dorado.config.service.spring.ReferenceBean" destroy-method="destroy">
-        <property name="serviceInterface" value="com.meituan.dorado.test.thrift.api2.TestService"/>
+        <property name="serviceInterface" value="com.meituan.dorado.test.thrift.apisuite.TestSuite"/>
         <property name="timeout" value="1000"/>
         <property name="appkey" value="com.meituan.octo.dorado.client"/>
         <property name="remoteAppkey" value="com.meituan.octo.dorado.server"/>

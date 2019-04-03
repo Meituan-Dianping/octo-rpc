@@ -18,8 +18,8 @@ package com.meituan.dorado.demo.thrift.apiway;
 import com.meituan.dorado.bootstrap.ServiceBootstrap;
 import com.meituan.dorado.config.service.ProviderConfig;
 import com.meituan.dorado.config.service.ServiceConfig;
-import com.meituan.dorado.demo.thrift.api.HelloService;
-import com.meituan.dorado.demo.thrift.api.HelloServiceImpl;
+import com.meituan.dorado.test.thrift.api.HelloService;
+import com.meituan.dorado.test.thrift.api.HelloServiceImpl;
 import org.apache.curator.test.TestingServer;
 
 public class ThriftProvider {

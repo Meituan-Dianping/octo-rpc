@@ -18,12 +18,12 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="serviceProcessor" class="com.meituan.dorado.demo.thrift.api.HelloServiceImpl"></bean>
+    <bean id="serviceProcessor" class="com.meituan.dorado.test.thrift.api.HelloServiceImpl"></bean>
 
     <bean id="serverPublisher" class="com.meituan.dorado.config.service.spring.ServiceBean">
         <property name="serviceConfig">
             <bean class="com.meituan.dorado.config.service.ServiceConfig">
-                <property name="serviceInterface" value="com.meituan.dorado.demo.thrift.api.HelloService"/> <!-- 接口类 -->
+                <property name="serviceInterface" value="com.meituan.dorado.test.thrift.api.HelloService"/> <!-- 接口类 -->
                 <property name="serviceImpl" ref="serviceProcessor"/> <!-- 实现类 -->
             </bean>
         </property>
@@ -32,12 +32,12 @@
         <property name="registry" value="mock"/>
     </bean>
 
-    <bean id="echoImpl" class="com.meituan.dorado.demo.thrift.api.EchoImpl"></bean>
+    <bean id="echoImpl" class="com.meituan.dorado.test.thrift.api.EchoImpl"></bean>
 
     <bean id="serverPublisher2" class="com.meituan.dorado.config.service.spring.ServiceBean">
         <property name="serviceConfig">
             <bean class="com.meituan.dorado.config.service.ServiceConfig">
-                <property name="serviceInterface" value="com.meituan.dorado.demo.thrift.api.Echo"/> <!-- 接口类 -->
+                <property name="serviceInterface" value="com.meituan.dorado.test.thrift.api.Echo"/> <!-- 接口类 -->
                 <property name="serviceImpl" ref="echoImpl"/> <!-- 实现类 -->
             </bean>
         </property>

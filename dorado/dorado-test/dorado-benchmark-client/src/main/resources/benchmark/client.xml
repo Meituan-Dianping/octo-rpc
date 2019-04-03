@@ -19,7 +19,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="clientProxy" class="com.meituan.dorado.config.service.spring.ReferenceBean" destroy-method="destroy">
-        <property name="serviceInterface" value="com.meituan.dorado.api.Echo"/>
+        <property name="serviceInterface" value="com.meituan.dorado.test.thrift.api.Echo"/>
         <property name="timeout" value="1000"/>
         <!-- 可以使用你的注册方式-->
         <!--<property name="registry" value="mock"/>-->

@@ -88,7 +88,7 @@ public class ProviderChannelHandler implements ChannelHandler {
     }
 
     private String genServerBizThreadPoolName(ProviderConfig providerConfig) {
-        String bizThreadPoolName = "DoradoWorker-";
+        String bizThreadPoolName = "DoradoServerBizWorker-";
         if (providerConfig.getServiceConfigList().size() == 1) {
             bizThreadPoolName += providerConfig.getServiceConfigList().get(0).getServiceName();
         } else {

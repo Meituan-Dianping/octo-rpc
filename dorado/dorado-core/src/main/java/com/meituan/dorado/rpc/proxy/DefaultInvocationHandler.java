@@ -33,8 +33,23 @@ public class DefaultInvocationHandler<T> implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        String methodName = method.getName();
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        if (method.getDeclaringClass() == Object.class) {
+            return method.invoke(this, args);
+        }
+        if ("toString".equals(methodName) && parameterTypes.length == 0) {
+            return this.toString();
+        }
+        if ("hashCode".equals(methodName) && parameterTypes.length == 0) {
+            return this.hashCode();
+        }
+        if ("equals".equals(methodName) && parameterTypes.length == 1) {
+            return this.equals(args[0]);
+        }
+
         RpcInvocation invocation = new RpcInvocation(handler.getInterface(), method, args,
-                method.getParameterTypes());
+                parameterTypes);
 
         TraceTimeline timeline = TraceTimeline.newRecord(handler.getRepository().getClientConfig().isTimelineTrace(),
                 TraceTimeline.INVOKE_START_TS);

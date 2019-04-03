@@ -22,7 +22,7 @@
     <bean id="clientProxy" class="com.meituan.dorado.config.service.spring.ReferenceBean" destroy-method="destroy">
         <property name="remoteAppkey" value="com.meituan.octo.dorado.server"/>
         <property name="appkey" value="com.meituan.octo.dorado.client"/>
-        <property name="serviceInterface" value="com.meituan.dorado.trace.cat.api.Echo"/>
+        <property name="serviceInterface" value="com.meituan.dorado.test.thrift.api.Echo"/>
         <property name="directConnAddress" value="localhost:9001"/>
         <property name="timeout" value="1000"/>
     </bean>
@@ -30,7 +30,7 @@
     <bean id="clientProxyWithTimeout" class="com.meituan.dorado.config.service.spring.ReferenceBean" destroy-method="destroy">
         <property name="remoteAppkey" value="com.meituan.octo.dorado.server"/>
         <property name="appkey" value="com.meituan.octo.dorado.client"/>
-        <property name="serviceInterface" value="com.meituan.dorado.trace.cat.api.Echo"/>
+        <property name="serviceInterface" value="com.meituan.dorado.test.thrift.api.Echo"/>
         <property name="directConnAddress" value="localhost:9001"/>
         <property name="timeout" value="10"/>
         <property name="clusterPolicy" value="failfast"/>

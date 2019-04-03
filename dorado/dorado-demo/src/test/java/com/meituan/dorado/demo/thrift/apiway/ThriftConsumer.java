@@ -17,7 +17,7 @@ package com.meituan.dorado.demo.thrift.apiway;
 
 import com.meituan.dorado.bootstrap.ServiceBootstrap;
 import com.meituan.dorado.config.service.ReferenceConfig;
-import com.meituan.dorado.demo.thrift.api.HelloService;
+import com.meituan.dorado.test.thrift.api.HelloService;
 import org.apache.thrift.TException;
 import org.junit.Assert;
 

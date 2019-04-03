@@ -16,7 +16,6 @@
 package com.meituan.dorado.codec.octo;
 
 
-import com.meituan.dorado.Echo;
 import com.meituan.dorado.HelloService;
 import com.meituan.dorado.bootstrap.invoker.ServiceInvocationRepository;
 import com.meituan.dorado.bootstrap.provider.ServicePublisher;
@@ -29,6 +28,7 @@ import com.meituan.dorado.rpc.DefaultFuture;
 import com.meituan.dorado.rpc.meta.RpcInvocation;
 import com.meituan.dorado.rpc.meta.RpcResult;
 import com.meituan.dorado.serialize.thrift.ThriftMessageSerializer;
+import com.meituan.dorado.test.thrift.api.Echo;
 import com.meituan.dorado.trace.meta.TransportTraceInfo;
 import com.meituan.dorado.transport.Channel;
 import com.meituan.dorado.transport.meta.DefaultRequest;

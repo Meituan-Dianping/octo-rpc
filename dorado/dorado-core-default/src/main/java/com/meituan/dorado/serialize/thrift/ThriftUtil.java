@@ -19,9 +19,9 @@ import com.facebook.swift.codec.metadata.ReflectionHelper;
 import com.facebook.swift.service.ThriftService;
 import com.meituan.dorado.common.Constants;
 import com.meituan.dorado.common.exception.ProtocolException;
+import com.meituan.dorado.common.util.ClassLoaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.meituan.dorado.common.util.ClassLoaderUtil;
 
 import java.lang.reflect.Method;
 import java.util.HashSet;
@@ -117,7 +117,7 @@ public class ThriftUtil {
                 try {
                     getMethod = clazz.getMethod(ThriftUtil.generateBoolMethodName(fieldName));
                 } catch (NoSuchMethodException e0) {
-                    throw new ProtocolException("Serialize failed.", e);
+                    throw new ProtocolException("Cannot find get or is method of " + fieldName + " in " + clazz.getName(), e);
                 }
             }
             getMethodNameMap.get(clazz).put(fieldName, getMethod);
@@ -138,25 +138,23 @@ public class ThriftUtil {
 
         int index = serviceName.indexOf(Constants.LINK_SUB_CLASS_SYMBOL);
 
-        StringBuilder argsClassName = new StringBuilder(32);
+        StringBuilder argsClassName = new StringBuilder(64);
         if (index > 0) {
             argsClassName.append(serviceName.substring(0, index + 1));
         } else {
-            argsClassName.append(serviceName).append("&");
+            argsClassName.append(serviceName).append(Constants.LINK_SUB_CLASS_SYMBOL);
         }
         argsClassName.append(methodName).append("_args");
         return argsClassName.toString();
     }
 
     public static String generateMethodResultClassName(String serviceName, String methodName) {
-
         int index = serviceName.indexOf(Constants.LINK_SUB_CLASS_SYMBOL);
-
-        StringBuilder resultClassName = new StringBuilder(32);
+        StringBuilder resultClassName = new StringBuilder(64);
         if (index > 0) {
             resultClassName.append(serviceName.substring(0, index + 1));
         } else {
-            resultClassName.append(serviceName).append("&");
+            resultClassName.append(serviceName).append(Constants.LINK_SUB_CLASS_SYMBOL);
         }
         resultClassName.append(methodName).append("_result");
         return resultClassName.toString();
@@ -191,5 +189,47 @@ public class ThriftUtil {
             return className;
         }
         return resultClassNameMap.get(serviceName).get(methodName);
+    }
+
+    public static String generateIDLClientClassName(String serviceName) {
+        int index = serviceName.indexOf(Constants.LINK_SUB_CLASS_SYMBOL);
+        StringBuilder clientClassName = new StringBuilder(64);
+        if (index > 0) {
+            clientClassName.append(serviceName.substring(0, index + 1));
+        } else {
+            clientClassName.append(serviceName).append(Constants.LINK_SUB_CLASS_SYMBOL);
+        }
+        clientClassName.append("Client");
+        return clientClassName.toString();
+    }
+
+    public static Class<?> getIDLClientClass(Class<?> serviceInterface) {
+        Class<?> clazz = serviceInterface;
+        if (clazz.isMemberClass()) {
+            clazz = clazz.getEnclosingClass();
+        }
+        Class<?>[] classes = clazz.getClasses();
+        for (Class c : classes) {
+            if (c.isMemberClass() && !c.isInterface() && c.getSimpleName().equals("Client")) {
+                return c;
+            }
+        }
+        throw new ProtocolException("serviceInterface must contain Sub Class of Client");
+    }
+
+    public static String generateClientSendKey(Class<?> clazz, String methodName) {
+        return clazz + ".send_" + methodName;
+    }
+
+    public static Method getIDLClientSendMethod(Class<?> clazz, String methodName, Class<?>[] parameterTypes) {
+        try {
+            return clazz.getMethod("send_" + methodName, parameterTypes);
+        } catch (NoSuchMethodException e) {
+            throw new ProtocolException("getIDLClientSendMethod failed.", e);
+        }
+    }
+
+    public static String generateIDLFieldsClassName(String parentClassName) {
+        return parentClassName + Constants.LINK_SUB_CLASS_SYMBOL + "_Fields";
     }
 }
