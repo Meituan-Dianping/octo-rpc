@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ProviderConfig {
+public class ProviderConfig implements Disposable {
 
     protected String appkey;
     // mns, zookeeper://address?k=v&k=v; 没配置则从SPI中获取
@@ -56,8 +56,6 @@ public class ProviderConfig {
     private List<Filter> filters = Collections.emptyList();
     private String env = Constants.EnvType.TEST.getEnvName();
 
-    private volatile ShutDownHook hook;
-
     private volatile boolean destroyed;
 
     public void init() {
@@ -85,10 +83,7 @@ public class ProviderConfig {
     }
 
     protected synchronized void addShutDownHook() {
-        if (hook == null) {
-            hook = new ShutDownHook(this);
-            Runtime.getRuntime().addShutdownHook(hook);
-        }
+        ShutdownHook.register(this);
     }
 
     public List<String> getServiceList() {
@@ -199,17 +194,4 @@ public class ProviderConfig {
         this.env = env;
     }
 
-    class ShutDownHook extends Thread {
-        private ProviderConfig config;
-
-        public ShutDownHook(ProviderConfig config) {
-            this.config = config;
-        }
-
-        @Override
-        public void run() {
-            hook = null;
-            config.destroy();
-        }
-    }
 }
