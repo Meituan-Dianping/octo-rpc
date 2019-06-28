@@ -16,7 +16,7 @@
 package com.meituan.dorado.serialize.thrift;
 
 import com.meituan.dorado.bootstrap.invoker.ServiceInvocationRepository;
-import com.meituan.dorado.bootstrap.provider.ServicePublisher;
+import com.meituan.dorado.bootstrap.provider.ProviderInfoRepository;
 import com.meituan.dorado.codec.octo.MetaUtil;
 import com.meituan.dorado.common.Constants;
 import com.meituan.dorado.common.exception.ProtocolException;
@@ -43,7 +43,7 @@ public class ThriftCodecSerializer {
     }
 
     public static RpcInvocation decodeReqBody(byte[] buff, DefaultRequest request) throws Exception {
-        Class<?> iface = ServicePublisher.getInterface(request.getServiceName());
+        Class<?> iface = ProviderInfoRepository.getInterface(request.getServiceName());
         if (iface == null) {
             throw new ProtocolException("No match interface of service=" + request.getServiceName());
         }

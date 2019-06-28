@@ -14,14 +14,19 @@
  * limitations under the License.
  */
 
-package com.meituan.dorado.test.thrift.normal;
+package com.meituan.dorado.test.thrift.originthrift;
 
 import com.meituan.dorado.test.thrift.apitwitter.Tweet;
 import com.meituan.dorado.test.thrift.apitwitter.TweetSearchResult;
 import com.meituan.dorado.test.thrift.apitwitter.Twitter;
 import com.meituan.dorado.test.thrift.apitwitter.TwitterUnavailable;
-import com.meituan.dorado.test.thrift.filter.ClientQpsLimitFilter;
 import com.meituan.dorado.test.thrift.filter.ServerQpsLimitFilter;
+import org.apache.thrift.protocol.TBinaryProtocol;
+import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.transport.TFramedTransport;
+import org.apache.thrift.transport.TSocket;
+import org.apache.thrift.transport.TTransport;
+import org.apache.thrift.transport.TTransportException;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -31,26 +36,28 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import java.nio.ByteBuffer;
 import java.util.*;
 
-public class TwitterTest {
-    private static ClassPathXmlApplicationContext clientBean;
+public class OriginThriftTest {
+
     private static ClassPathXmlApplicationContext serverBean;
+    private static int serverPort = 9001;
+    private static TTransport transport;
     private static Twitter.Iface oriThriftClient;
-    private static Twitter.Iface octoProtocolClient;
 
     @BeforeClass
     public static void init() {
         serverBean = new ClassPathXmlApplicationContext("thrift/normal/twitter/thrift-provider.xml");
-        clientBean = new ClassPathXmlApplicationContext("thrift/normal/twitter/thrift-consumer.xml");
-        oriThriftClient = (Twitter.Iface) clientBean.getBean("oriThriftClient");
-        octoProtocolClient = (Twitter.Iface) clientBean.getBean("octoProtocolClient");
+        try {
+            oriThriftClient = getOriginThriftClient();
+        } catch (TTransportException e) {
+            Assert.fail(e.getMessage());
+        }
 
-        ClientQpsLimitFilter.disable();
         ServerQpsLimitFilter.disable();
     }
 
     @AfterClass
     public static void stop() {
-        clientBean.destroy();
+        transport.close();
         serverBean.destroy();
     }
 
@@ -66,7 +73,7 @@ public class TwitterTest {
 
         try {
             byte b = 10;
-            byte result = octoProtocolClient.testByte(b);
+            byte result = oriThriftClient.testByte(b);
             Assert.assertEquals(b, result);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
@@ -74,7 +81,7 @@ public class TwitterTest {
 
         try {
             short s = 100;
-            short result = octoProtocolClient.testI16(s);
+            short result = oriThriftClient.testI16(s);
             Assert.assertEquals(s, result);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
@@ -90,8 +97,6 @@ public class TwitterTest {
 
         try {
             long l = 123456;
-            long result1 = octoProtocolClient.testI64(l);
-            Assert.assertEquals(l, result1);
             long result2 = oriThriftClient.testI64(l);
             Assert.assertEquals(l, result2);
         } catch (Exception e) {
@@ -100,8 +105,6 @@ public class TwitterTest {
 
         try {
             double d = 123456.789;
-            double result1 = octoProtocolClient.testDouble(d);
-            Assert.assertEquals(0, Double.compare(d, result1));
             double result2 = oriThriftClient.testDouble(d);
             Assert.assertEquals(0, Double.compare(d, result2));
         } catch (Exception e) {
@@ -110,8 +113,6 @@ public class TwitterTest {
 
         try {
             ByteBuffer b = ByteBuffer.wrap("test".getBytes());
-            ByteBuffer result1 = octoProtocolClient.testBinary(b);
-            Assert.assertEquals(b, result1);
             ByteBuffer result2 = oriThriftClient.testBinary(b);
             Assert.assertEquals(b, result2);
         } catch (Exception e) {
@@ -127,10 +128,6 @@ public class TwitterTest {
                 break;
         }
         try {
-            for (int j = 0; j < 20; j++) {
-                String result = octoProtocolClient.testString(stringBuilder.toString());
-                Assert.assertEquals(stringBuilder.toString(), result);
-            }
             for (int j = 0; j < 20; j++) {
                 String result = oriThriftClient.testString(stringBuilder.toString());
                 Assert.assertEquals(stringBuilder.toString(), result);
@@ -149,8 +146,6 @@ public class TwitterTest {
             list.add("c");
             List<String> result1 = oriThriftClient.testList(list);
             Assert.assertEquals(list, (result1));
-            List<String> result2 = octoProtocolClient.testList(list);
-            Assert.assertEquals(list, (result2));
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -162,8 +157,6 @@ public class TwitterTest {
             set.add("c");
             Set<String> result1 = oriThriftClient.testSet(set);
             Assert.assertEquals(set, result1);
-            Set<String> result2 = octoProtocolClient.testSet(set);
-            Assert.assertEquals(set, result2);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -173,8 +166,6 @@ public class TwitterTest {
             map.put("1", "a");
             map.put("2", "b");
             map.put("3", "c");
-            Map<String, String> result1 = octoProtocolClient.testMap(map);
-            Assert.assertEquals(map, result1);
             Map<String, String> result2 = oriThriftClient.testMap(map);
             Assert.assertEquals(map, result2);
         } catch (Exception e) {
@@ -185,7 +176,7 @@ public class TwitterTest {
     @Test
     public void otherTest() {
         try {
-            octoProtocolClient.testVoid();
+            oriThriftClient.testVoid();
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -199,8 +190,6 @@ public class TwitterTest {
 
             TweetSearchResult result1 = oriThriftClient.testStruct("test");
             Assert.assertEquals(tweetSearchResult.getTweets(), result1.getTweets());
-            TweetSearchResult result2 = octoProtocolClient.testStruct("test");
-            Assert.assertEquals(tweetSearchResult.getTweets(), result2.getTweets());
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -210,5 +199,14 @@ public class TwitterTest {
         } catch (Exception e) {
             Assert.assertEquals(TwitterUnavailable.class, e.getClass());
         }
+    }
+
+
+    private static Twitter.Iface getOriginThriftClient() throws TTransportException {
+        transport = new TFramedTransport(new TSocket("localhost", serverPort));
+        transport.open();
+        TProtocol protocol = new TBinaryProtocol(transport);
+        Twitter.Iface client = new Twitter.Client(protocol);
+        return client;
     }
 }

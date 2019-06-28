@@ -43,7 +43,6 @@ public class ThriftConsumer {
             config.destroy();
         }
 
-        ServiceBootstrap.clearGlobalResource();
         System.exit(0);
     }
 }

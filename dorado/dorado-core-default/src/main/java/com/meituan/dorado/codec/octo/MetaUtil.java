@@ -15,7 +15,7 @@
  */
 package com.meituan.dorado.codec.octo;
 
-import com.meituan.dorado.bootstrap.provider.ServerInfo;
+import com.meituan.dorado.bootstrap.provider.ProviderInfoRepository;
 import com.meituan.dorado.bootstrap.provider.ServicePublisher;
 import com.meituan.dorado.codec.octo.meta.*;
 import com.meituan.dorado.codec.octo.meta.old.RequestHeader;
@@ -197,7 +197,7 @@ public class MetaUtil {
         HeartbeatInfo heartbeatInfo = new HeartbeatInfo();
         heartbeatInfo.setAppkey(ServicePublisher.getAppkey());
         heartbeatInfo.setSendTime(System.currentTimeMillis());
-        heartbeatInfo.setStatus(ServerInfo.getStatus(response.getPort()));
+        heartbeatInfo.setStatus(ProviderInfoRepository.getProviderStatus(response.getPort()).getCode());
 
         return heartbeatInfo;
     }

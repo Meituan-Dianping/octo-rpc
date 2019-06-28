@@ -22,12 +22,16 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public class NettyHttpServerHandler extends ChannelInboundHandlerAdapter {
 
@@ -71,13 +75,14 @@ public class NettyHttpServerHandler extends ChannelInboundHandlerAdapter {
 
                 NettyHttpSender httpSender = new NettyHttpSender(ctx.channel(), request);
                 try {
-                    httpHandler.handle(httpSender, request.uri(), fullBuff);
+                    Map<String, String> headers = getRequestHeaders(request.headers());
+                    httpHandler.handle(httpSender, request.uri(), fullBuff, headers);
                 } catch (Throwable e) {
                     logger.warn("Handle http request({}) exception,", request.uri(), e);
                     String errorMsg = e.getMessage();
-                    errorMsg = errorMsg == null ? "" : errorMsg;
+                    errorMsg = errorMsg == null ? e.getClass().getName() : errorMsg;
                     DefaultHttpResponse httpResponse = new DefaultHttpResponse();
-                    httpResponse.generateFailContent(e.getClass().getName() + ":" + errorMsg);
+                    httpResponse.generateFailContent(errorMsg);
                     httpSender.send(httpResponse);
                 }
             } else {
@@ -113,5 +118,15 @@ public class NettyHttpServerHandler extends ChannelInboundHandlerAdapter {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         logger.error("Netty http request fail", cause);
         ctx.close();
+    }
+
+    private Map<String, String> getRequestHeaders(HttpHeaders headers) {
+        Map<String, String> headerMap = new HashMap<String, String>();
+        Iterator<Map.Entry<String, String>> iterator = headers.iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, String> entry = iterator.next();
+            headerMap.put(entry.getKey(), entry.getValue());
+        }
+        return headerMap;
     }
 }

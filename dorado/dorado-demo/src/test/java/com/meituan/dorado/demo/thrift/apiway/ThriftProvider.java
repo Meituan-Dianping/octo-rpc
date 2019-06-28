@@ -54,7 +54,6 @@ public class ThriftProvider {
         } finally {
             config.destroy();
         }
-        ServiceBootstrap.clearGlobalResource();
         zkServer.close();
     }
 }

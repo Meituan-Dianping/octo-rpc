@@ -13,30 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.meituan.dorado.mock;
 
-import com.meituan.dorado.check.http.HttpCheckHandler;
-import com.meituan.dorado.common.RpcRole;
-import com.meituan.dorado.transport.http.HttpSender;
+package com.meituan.dorado.check.http.meta;
 
-import java.util.Map;
+import java.util.Set;
 
-public class MockHttpCheckHandler implements HttpCheckHandler {
+public class ServiceMethodInfo {
 
-    private RpcRole rpcRole;
+    private String serviceName;
+    private Set<String> methods;
 
-    @Override
-    public void handle(HttpSender httpSender, String uri, byte[] content, Map<String, String> headers) {
-
+    public ServiceMethodInfo(String serviceName, Set<String> methodNames) {
+        this.serviceName = serviceName;
+        this.methods = methodNames;
     }
 
-    @Override
-    public void setRole(RpcRole role) {
-        this.rpcRole = role;
+    public String getServiceName() {
+        return serviceName;
     }
 
-    @Override
-    public RpcRole getRole() {
-        return rpcRole;
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
+    }
+
+    public Set<String> getMethods() {
+        return methods;
+    }
+
+    public void setMethods(Set<String> methods) {
+        this.methods = methods;
     }
 }

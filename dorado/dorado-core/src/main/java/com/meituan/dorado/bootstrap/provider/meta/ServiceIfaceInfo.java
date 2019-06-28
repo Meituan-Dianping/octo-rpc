@@ -13,30 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.meituan.dorado.mock;
 
-import com.meituan.dorado.check.http.HttpCheckHandler;
-import com.meituan.dorado.common.RpcRole;
-import com.meituan.dorado.transport.http.HttpSender;
+package com.meituan.dorado.bootstrap.provider.meta;
 
-import java.util.Map;
+public class ServiceIfaceInfo {
 
-public class MockHttpCheckHandler implements HttpCheckHandler {
+    private String serviceName;
 
-    private RpcRole rpcRole;
+    private String ifaceName;
 
-    @Override
-    public void handle(HttpSender httpSender, String uri, byte[] content, Map<String, String> headers) {
+    private String implName;
 
+    public ServiceIfaceInfo(String serviceName, String ifaceName, String implName) {
+        this.serviceName = serviceName;
+        this.ifaceName = ifaceName;
+        this.implName = implName;
     }
 
-    @Override
-    public void setRole(RpcRole role) {
-        this.rpcRole = role;
+    public String getServiceName() {
+        return serviceName;
     }
 
-    @Override
-    public RpcRole getRole() {
-        return rpcRole;
+    public String getIfaceName() {
+        return ifaceName;
+    }
+
+    public String getImplName() {
+        return implName;
     }
 }

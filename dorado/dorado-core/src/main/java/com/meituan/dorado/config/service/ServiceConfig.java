@@ -63,7 +63,7 @@ public class ServiceConfig<T> extends AbstractConfig {
             serviceName = serviceName.substring(0, serviceName.indexOf(Constants.LINK_SUB_CLASS_SYMBOL));
         }
         if (!serviceInterface.isInterface()) {
-            serviceInterface = getSynIfaceInterface(serviceInterface);
+            serviceInterface = getSyncIfaceInterface(serviceInterface);
         }
         if (!getServiceInterface().isAssignableFrom(getServiceImpl().getClass())) {
             throw new IllegalArgumentException("serviceImpl must be sub class of class:"

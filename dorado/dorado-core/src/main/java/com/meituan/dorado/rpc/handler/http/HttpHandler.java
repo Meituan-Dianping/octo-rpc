@@ -18,9 +18,11 @@ package com.meituan.dorado.rpc.handler.http;
 import com.meituan.dorado.common.RpcRole;
 import com.meituan.dorado.transport.http.HttpSender;
 
+import java.util.Map;
+
 public interface HttpHandler {
 
-    void handle(HttpSender httpSender, String uri, byte[] content);
+    void handle(HttpSender httpSender, String uri, byte[] content, Map<String, String> headers);
 
     void setRole(RpcRole role);
 

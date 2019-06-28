@@ -15,8 +15,7 @@
  */
 package com.meituan.dorado.rpc.handler.http;
 
-import com.meituan.dorado.bootstrap.provider.ServicePublisher;
-import com.meituan.dorado.check.http.DoradoHttpCheckHandler;
+import com.meituan.dorado.check.http.meta.HttpURI;
 import com.meituan.dorado.common.Constants;
 import com.meituan.dorado.common.RpcRole;
 import com.meituan.dorado.common.util.URLUtil;
@@ -24,28 +23,21 @@ import com.meituan.dorado.transport.http.HttpSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
+
 /**
  * URI 是invoke开头的则认为是接口请求，否则认为是http check
- * 接口请求：/invoke/com.meituan.dorado.test.HelloService
  */
 public class DoradoHttpInvokeHandler implements HttpInvokeHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(DoradoHttpInvokeHandler.class);
 
     @Override
-    public void handle(HttpSender httpSender, String uri, byte[] content) {
+    public void handle(HttpSender httpSender, String uri, byte[] content, Map<String, String> headers) {
 
         String path = URLUtil.getURIPath(uri);
-        if (!path.startsWith(DoradoHttpCheckHandler.SERVICE_REQUEST_PREFIX)) {
-            String errorMsg = "Invalid service invoke, must have prefix:" + DoradoHttpCheckHandler.SERVICE_REQUEST_PREFIX;
-            logger.warn(errorMsg);
-            httpSender.sendErrorResponse(errorMsg);
-            return;
-        }
-        String serviceName = getServiceNameByPath(path);
-        Class<?> interfaceName = ServicePublisher.getInterface(serviceName);
-        if (interfaceName == null) {
-            String errorMsg = "No service interface of serviceName:" + serviceName;
+        if (!path.startsWith(HttpURI.SERVICE_INVOKE_PREFIX.uri())) {
+            String errorMsg = "Invalid service invoke, must have prefix:" + HttpURI.SERVICE_INVOKE_PREFIX.uri();
             logger.warn(errorMsg);
             httpSender.sendErrorResponse(errorMsg);
             return;
@@ -63,10 +55,5 @@ public class DoradoHttpInvokeHandler implements HttpInvokeHandler {
     @Override
     public RpcRole getRole() {
         return RpcRole.PROVIDER;
-    }
-
-    private String getServiceNameByPath(String path) {
-        String serviceName = path.substring(DoradoHttpCheckHandler.SERVICE_REQUEST_PREFIX.length());
-        return serviceName;
     }
 }

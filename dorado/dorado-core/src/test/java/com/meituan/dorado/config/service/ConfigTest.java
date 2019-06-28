@@ -30,7 +30,7 @@ public class ConfigTest {
         try {
             config.init();
             Assert.assertNotNull(config.get());
-            Assert.assertNotNull(config.getSynIfaceInterface(HelloService.class));
+            Assert.assertNotNull(config.getSyncIfaceInterface(HelloService.class));
 
             config.destroy();
             config.destroy();

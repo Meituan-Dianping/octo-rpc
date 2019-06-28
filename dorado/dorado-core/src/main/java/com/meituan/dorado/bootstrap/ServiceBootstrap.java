@@ -48,20 +48,6 @@ public class ServiceBootstrap {
         }
     }
 
-    /**
-     * 1. 关闭HttpServer
-     * 一个进程只需要一个HttpServer，不需要调用该方法，httpServer会在进程退出时销毁
-     * 除非服务不需要使用RPC的http端口，可以调用该方法
-     * 2. 关闭超时检查任务
-     */
-    public static void clearGlobalResource() {
-        if (httpServer != null) {
-            httpServer.close();
-            httpServer = null;
-        }
-        ServiceInvocationRepository.stopTimeoutTask();
-    }
-
     public static Map<String, String> parseRegistryCfg(String registryCfg) {
         if (StringUtils.isBlank(registryCfg)) {
             return Collections.emptyMap();

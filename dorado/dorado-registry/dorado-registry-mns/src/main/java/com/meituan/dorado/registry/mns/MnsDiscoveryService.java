@@ -16,7 +16,7 @@
 
 package com.meituan.dorado.registry.mns;
 
-import com.meituan.dorado.bootstrap.provider.ProviderStatus;
+import com.meituan.dorado.bootstrap.provider.meta.ProviderStatus;
 import com.meituan.dorado.common.Constants;
 import com.meituan.dorado.common.exception.RegistryException;
 import com.meituan.dorado.registry.DiscoveryService;

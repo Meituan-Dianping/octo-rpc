@@ -16,6 +16,8 @@
 package com.meituan.dorado.bootstrap.provider;
 
 import com.meituan.dorado.bootstrap.ServiceBootstrap;
+import com.meituan.dorado.bootstrap.provider.meta.ProviderStatus;
+import com.meituan.dorado.bootstrap.provider.meta.ServerInfo;
 import com.meituan.dorado.common.Constants;
 import com.meituan.dorado.common.RpcRole;
 import com.meituan.dorado.common.extension.ExtensionLoader;
@@ -45,16 +47,7 @@ public class ServicePublisher extends ServiceBootstrap {
 
     private static String appkey;
 
-    private static final ConcurrentMap<String, Class<?>> serviceInterfaceMap = new ConcurrentHashMap<>();
-    private static final ConcurrentMap<String, Object> serviceImplMap = new ConcurrentHashMap<>();
-    private static final ConcurrentMap<String, Integer> servicePortMap = new ConcurrentHashMap<>();
-
-    private static final ConcurrentMap<Integer, Server> serviceServerMap = new ConcurrentHashMap<>();
     private static final ConcurrentMap<Integer, RegistryPolicy> registryPolicyMap = new ConcurrentHashMap<>();
-
-    public static Class<?> getInterface(String serviceName) {
-        return serviceInterfaceMap.get(serviceName);
-    }
 
     public static String getAppkey() {
         return appkey;
@@ -67,32 +60,21 @@ public class ServicePublisher extends ServiceBootstrap {
         ServerFactory serverFactory = ExtensionLoader.getExtension(ServerFactory.class);
         Server server = serverFactory.buildServer(config);
 
-        for (ServiceConfig serviceConfig : config.getServiceConfigList()) {
-            serviceInterfaceMap.put(serviceConfig.getServiceName(), serviceConfig.getServiceInterface());
-            serviceImplMap.put(serviceConfig.getServiceName(), serviceConfig.getServiceImpl());
-            servicePortMap.put(serviceConfig.getServiceName(), config.getPort());
-        }
-        serviceServerMap.put(config.getPort(), server);
         registerService(config);
+        ProviderInfoRepository.addProviderInfo(config, server);
         LOGGER.info("Dorado service published: {}", getServiceNameList(config));
-        ServerInfo.alive(config.getPort());
     }
 
     public static void unpublishService(ProviderConfig config) {
         unregisterService(config);
-        for (ServiceConfig serviceConfig : config.getServiceConfigList()) {
-            serviceInterfaceMap.remove(serviceConfig.getServiceName());
-            serviceImplMap.remove(serviceConfig.getServiceName());
-            servicePortMap.remove(serviceConfig.getServiceName());
-        }
 
         int port = config.getPort();
-        Server server = serviceServerMap.get(port);
-        if (server != null) {
-            server.close();
-            ServerInfo.dead(port);
+        ServerInfo serverInfo = ProviderInfoRepository.getPortServerInfoMap().get(port);
+        if (serverInfo != null && serverInfo.getServer() != null) {
+            serverInfo.getServer().close();
         }
-        serviceServerMap.remove(port);
+        ProviderInfoRepository.removeProviderInfo(config);
+        LOGGER.info("Dorado service unpublished: {}", getServiceNameList(config));
     }
 
     private static void registerService(ProviderConfig config) {
@@ -156,19 +138,4 @@ public class ServicePublisher extends ServiceBootstrap {
         return serviceNameList;
     }
 
-    public static ConcurrentMap<String, Class<?>> getServiceInterfaceMap() {
-        return serviceInterfaceMap;
-    }
-
-    public static ConcurrentMap<Integer, Server> getServiceServerMap() {
-        return serviceServerMap;
-    }
-
-    public static ConcurrentMap<String, Object> getServiceImplMap() {
-        return serviceImplMap;
-    }
-
-    public static Object getServiceImpl(String serviceName) {
-        return serviceImplMap.get(serviceName);
-    }
 }

@@ -15,6 +15,8 @@
  */
 package com.meituan.dorado.transport.http.netty;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.meituan.dorado.common.Constants;
 import com.meituan.dorado.rpc.handler.http.DefaultHttpResponse;
 import com.meituan.dorado.transport.http.HttpSender;
@@ -25,9 +27,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class NettyHttpSender implements HttpSender {
+    private static final Logger logger = LoggerFactory.getLogger(NettyHttpSender.class);
 
     private HttpRequest request;
     private Channel channel;
+    private static ObjectMapper objectMapper = new ObjectMapper();
 
     public NettyHttpSender(Channel channel, HttpRequest request) {
         this.channel = channel;
@@ -43,11 +47,28 @@ public class NettyHttpSender implements HttpSender {
     }
 
     @Override
+    public void sendObjectJson(Object object) {
+        try {
+            byte[] bytes = objectMapper.writeValueAsBytes(object);
+            DefaultHttpResponse response = new DefaultHttpResponse(bytes, Constants.CONTENT_TYPE_JSON);
+            send(response);
+        } catch (JsonProcessingException e) {
+            logger.error("Object to json failed", e);
+            sendErrorResponse("Object to json failed: " + e.getMessage());
+        }
+    }
+
+    @Override
     public void sendErrorResponse(String errorMsg) {
-        FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK,
-                Unpooled.wrappedBuffer(errorMsg.getBytes()));
-        setHeaders(response, Constants.CONTENT_TYPE_JSON);
-        channel.writeAndFlush(response);
+        try {
+            String returnMessage = genReturnMessage(false, errorMsg);
+            FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK,
+                    Unpooled.wrappedBuffer(returnMessage.getBytes("UTF-8")));
+            setHeaders(response, Constants.CONTENT_TYPE_JSON);
+            channel.writeAndFlush(response);
+        } catch (Exception e) {
+            logger.error("Send error response failed", e);
+        }
     }
 
     private void setHeaders(FullHttpResponse response, String contentType) {
@@ -56,5 +77,10 @@ public class NettyHttpSender implements HttpSender {
         if (HttpUtil.isKeepAlive(request)) {
             response.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderNames.CONNECTION);
         }
+    }
+
+    private String genReturnMessage(boolean isSuccess, String result) throws JsonProcessingException {
+        ReturnMessage returnMessage = new ReturnMessage(isSuccess, result);
+        return objectMapper.writeValueAsString(returnMessage);
     }
 }

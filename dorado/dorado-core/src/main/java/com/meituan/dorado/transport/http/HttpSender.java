@@ -21,5 +21,33 @@ public interface HttpSender {
 
     void send(DefaultHttpResponse httpResponse);
 
+    void sendObjectJson(Object object);
+
     void sendErrorResponse(String errorMsg);
+
+    class ReturnMessage {
+        private Boolean success;
+        private String result;
+
+        public ReturnMessage(Boolean success, String result) {
+            this.success = success;
+            this.result = result;
+        }
+
+        public Boolean getSuccess() {
+            return success;
+        }
+
+        public void setSuccess(Boolean success) {
+            success = success;
+        }
+
+        public String getResult() {
+            return result;
+        }
+
+        public void setResult(String result) {
+            this.result = result;
+        }
+    }
 }

@@ -29,7 +29,6 @@ public class ThriftConsumer {
             System.out.println(userservice.sayHello("Emma"));
 
             beanFactory.destroy();
-            ServiceBootstrap.clearGlobalResource();
             System.exit(0);
         } catch (Exception e) {
             e.printStackTrace();

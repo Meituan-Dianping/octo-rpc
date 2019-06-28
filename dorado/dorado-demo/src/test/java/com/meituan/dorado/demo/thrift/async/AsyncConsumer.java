@@ -90,7 +90,6 @@ public class AsyncConsumer {
         if (beanFactory != null) {
             beanFactory.destroy();
         }
-        ServiceBootstrap.clearGlobalResource();
         System.exit(0);
     }
 }

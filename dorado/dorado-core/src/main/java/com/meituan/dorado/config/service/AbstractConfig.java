@@ -27,7 +27,7 @@ public abstract class AbstractConfig {
 
     public abstract void destroy();
 
-    protected Class<?> getSynIfaceInterface(Class<?> serviceInterface) {
+    protected Class<?> getSyncIfaceInterface(Class<?> serviceInterface) {
         Class<?>[] classes = serviceInterface.getClasses();
         for (Class c : classes) {
             if (c.isMemberClass() && c.isInterface() && Constants.THRIFT_IFACE.equals(c.getSimpleName())) {

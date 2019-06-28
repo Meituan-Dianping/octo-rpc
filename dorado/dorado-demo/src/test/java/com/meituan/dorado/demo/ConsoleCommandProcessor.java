@@ -55,7 +55,6 @@ public class ConsoleCommandProcessor {
                 }
             }
             beanFactory.destroy();
-            ServiceBootstrap.clearGlobalResource();
             if (quitOperation != null) {
                 quitOperation.prepareQuit();
             }

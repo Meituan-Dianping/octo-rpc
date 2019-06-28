@@ -13,30 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.meituan.dorado.mock;
+package com.meituan.dorado.bootstrap.provider.meta;
 
-import com.meituan.dorado.check.http.HttpCheckHandler;
-import com.meituan.dorado.common.RpcRole;
-import com.meituan.dorado.transport.http.HttpSender;
+public enum ProviderStatus {
+    DEAD(0), STARTING(1), ALIVE(2), STOPPING(3), STOPPED(4);
 
-import java.util.Map;
+    private int code;
 
-public class MockHttpCheckHandler implements HttpCheckHandler {
-
-    private RpcRole rpcRole;
-
-    @Override
-    public void handle(HttpSender httpSender, String uri, byte[] content, Map<String, String> headers) {
-
+    ProviderStatus(int code) {
+        this.code = code;
     }
 
-    @Override
-    public void setRole(RpcRole role) {
-        this.rpcRole = role;
+    public int getCode() {
+        return code;
     }
 
-    @Override
-    public RpcRole getRole() {
-        return rpcRole;
+    public static boolean isNotAliveStatus(int statusCode) {
+        switch (statusCode) {
+            case 0:
+                return true;
+            case 1:
+                return true;
+            case 3:
+                return true;
+            case 4:
+                return true;
+            default:
+                return false;
+        }
     }
 }

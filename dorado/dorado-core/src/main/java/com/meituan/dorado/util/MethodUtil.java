@@ -29,6 +29,10 @@ public class MethodUtil {
         return builder.toString();
     }
 
+    public static String generateMethodSignatureNoIfacePrefix(Method method) {
+        return method.getName() + parameterTypesToString(method.getParameterTypes());
+    }
+
     private static String parameterTypesToString(Class<?>[] parameterTypes) {
         StringBuilder buf = new StringBuilder();
         buf.append("(");

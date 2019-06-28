@@ -19,8 +19,8 @@ package com.meituan.dorado.bootstrap.provider;
 import com.meituan.dorado.HelloService;
 import com.meituan.dorado.HelloServiceImpl;
 import com.meituan.dorado.MockUtil;
+import com.meituan.dorado.bootstrap.provider.meta.ProviderStatus;
 import com.meituan.dorado.config.service.ProviderConfig;
-import com.meituan.dorado.registry.meta.Provider;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -33,24 +33,24 @@ public class ServicePublisherTest {
         ServicePublisher.publishService(config);
 
         String serviceName = HelloService.class.getName();
-        Assert.assertTrue(ServicePublisher.getServiceImpl(serviceName) instanceof HelloServiceImpl);
-        Assert.assertTrue(ServicePublisher.getServiceImplMap().containsKey(serviceName));
-        Assert.assertTrue(ServicePublisher.getServiceInterfaceMap().containsKey(serviceName));
-        Assert.assertTrue(ServicePublisher.getServiceServerMap().containsKey(9001));
-        Assert.assertTrue(!ServicePublisher.getServiceServerMap().get(9001).isClosed());
-        Assert.assertEquals(ServicePublisher.getInterface(serviceName), HelloService.class);
+        Assert.assertTrue(ProviderInfoRepository.getServiceImpl(serviceName) instanceof HelloServiceImpl);
+        Assert.assertTrue(ProviderInfoRepository.getServiceImplMap().containsKey(serviceName));
+        Assert.assertTrue(ProviderInfoRepository.getServiceIfaceMap().containsKey(serviceName));
+        Assert.assertTrue(ProviderInfoRepository.getPortServerInfoMap().containsKey(9001));
+        Assert.assertTrue(!ProviderInfoRepository.getPortServerInfoMap().get(9001).getServer().isClosed());
+        Assert.assertEquals(ProviderInfoRepository.getInterface(serviceName), HelloService.class);
         Assert.assertEquals(ServicePublisher.getAppkey(), "com.meituan.octo.dorado.server");
 
-        Assert.assertTrue(ServerInfo.getStatus(9001) == ProviderStatus.ALIVE.getCode());
-        Assert.assertTrue(ServerInfo.getStatus(9000) == ProviderStatus.DEAD.getCode());
-        Assert.assertTrue(ServerInfo.getServerStatus().size() == 1);
+        Assert.assertTrue(ProviderInfoRepository.getProviderStatus(9001) == ProviderStatus.ALIVE);
+        Assert.assertTrue(ProviderInfoRepository.getProviderStatus(9000) == ProviderStatus.DEAD);
+        Assert.assertTrue(ProviderInfoRepository.getPortServerInfoMap().size() == 1);
 
         ServicePublisher.unpublishService(config);
-        Assert.assertNull(ServicePublisher.getServiceImpl(serviceName));
-        Assert.assertNull(ServicePublisher.getServiceImplMap().get(serviceName));
-        Assert.assertNull(ServicePublisher.getServiceInterfaceMap().get(serviceName));
-        Assert.assertNull(ServicePublisher.getServiceServerMap().get(9001));
-        Assert.assertTrue(ServerInfo.getStatus(9001) == ProviderStatus.DEAD.getCode());
+        Assert.assertNull(ProviderInfoRepository.getServiceImpl(serviceName));
+        Assert.assertNull(ProviderInfoRepository.getServiceImplMap().get(serviceName));
+        Assert.assertNull(ProviderInfoRepository.getServiceIfaceMap().get(serviceName));
+        Assert.assertNull(ProviderInfoRepository.getPortServerInfoMap().get(9001));
+        Assert.assertTrue(ProviderInfoRepository.getProviderStatus(9001) == ProviderStatus.DEAD);
 
         config.setAppkey("");
         try {

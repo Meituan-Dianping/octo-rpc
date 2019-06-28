@@ -19,13 +19,15 @@ import com.meituan.dorado.check.http.HttpCheckHandler;
 import com.meituan.dorado.common.RpcRole;
 import com.meituan.dorado.transport.http.HttpSender;
 
+import java.util.Map;
+
 public class MockHttpCheckHandler implements HttpCheckHandler {
 
     private RpcRole rpcRole;
 
-    @Override
-    public void handle(HttpSender httpSender, String uri, byte[] content) {
 
+    @Override
+    public void handle(HttpSender httpSender, String uri, byte[] content, Map<String, String> headers) {
     }
 
     @Override
