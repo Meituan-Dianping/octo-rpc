@@ -52,6 +52,7 @@ public class ThriftIDLSerializer extends ThriftMessageSerializer {
     private static final org.apache.thrift.protocol.TField MTRACE_FIELD_DESC = new org.apache.thrift.protocol.TField(
             "mtrace", org.apache.thrift.protocol.TType.STRUCT, (short) 32767);
     private static final String BYTE_ARRAY_CLASS_NAME = "[B";
+    private static final int INITIAL_BYTE_ARRAY_SIZE = 1024;
 
     private static final ConcurrentMap<String, Constructor<?>> cachedConstructor = new ConcurrentHashMap<>();
 
@@ -130,7 +131,7 @@ public class ThriftIDLSerializer extends ThriftMessageSerializer {
         RpcInvocation rpcInvocation = request.getData();
         TMessage message = new TMessage(rpcInvocation.getMethod().getName(), TMessageType.CALL, request.getSeqToInt());
 
-        TMemoryBuffer memoryBuffer = new TMemoryBuffer(1024);
+        TMemoryBuffer memoryBuffer = new TMemoryBuffer(INITIAL_BYTE_ARRAY_SIZE);
         TBinaryProtocol protocol = new TBinaryProtocol(memoryBuffer);
 
         protocol.writeMessageBegin(message);
@@ -190,7 +191,7 @@ public class ThriftIDLSerializer extends ThriftMessageSerializer {
             message = new TMessage(thriftMsgInfo.methodName, TMessageType.REPLY, thriftMsgInfo.seqId);
         }
 
-        TMemoryBuffer memoryBuffer = new TMemoryBuffer(1024);
+        TMemoryBuffer memoryBuffer = new TMemoryBuffer(INITIAL_BYTE_ARRAY_SIZE);
         TBinaryProtocol protocol = new TBinaryProtocol(memoryBuffer);
         protocol.writeMessageBegin(message);
         switch (message.type) {

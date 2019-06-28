@@ -80,13 +80,13 @@ public class NettyHttpServer extends AbstractHttpServer {
         try {
             if (Epoll.isAvailable()) {
                 logger.info("NettyHttpServer use EpollEventLoopGroup!");
-                bossGroup = new EpollEventLoopGroup(NIO_CONN_THREADS, new DefaultThreadFactory("DoradoHttpServerBossGroup"));
+                bossGroup = new EpollEventLoopGroup(NIO_CONN_THREADS, new DefaultThreadFactory("DoradoHttpServerBossGroup", true));
                 workerGroup = new EpollEventLoopGroup(NIO_WORKER_THREADS,
-                        new DefaultThreadFactory("DoradoHttpServerWorkerGroup"));
+                        new DefaultThreadFactory("DoradoHttpServerWorkerGroup", true));
             } else {
-                bossGroup = new NioEventLoopGroup(NIO_CONN_THREADS, new DefaultThreadFactory("DoradoHttpServerBossGroup"));
+                bossGroup = new NioEventLoopGroup(NIO_CONN_THREADS, new DefaultThreadFactory("DoradoHttpServerBossGroup", true));
                 workerGroup = new NioEventLoopGroup(NIO_WORKER_THREADS,
-                        new DefaultThreadFactory("DoradoHttpServerWorkerGroup"));
+                        new DefaultThreadFactory("DoradoHttpServerWorkerGroup", true));
             }
 
             bootstrap = new ServerBootstrap();
