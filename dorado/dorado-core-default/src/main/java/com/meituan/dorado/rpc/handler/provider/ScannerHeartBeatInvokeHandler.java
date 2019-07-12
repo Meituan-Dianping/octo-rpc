@@ -18,6 +18,7 @@ package com.meituan.dorado.rpc.handler.provider;
 import com.meituan.dorado.codec.octo.meta.MessageType;
 import com.meituan.dorado.common.RpcRole;
 import com.meituan.dorado.common.exception.RpcException;
+import com.meituan.dorado.common.util.NetUtil;
 import com.meituan.dorado.rpc.handler.HeartBeatInvokeHandler;
 import com.meituan.dorado.transport.meta.DefaultRequest;
 import com.meituan.dorado.transport.meta.DefaultResponse;
@@ -37,7 +38,7 @@ public class ScannerHeartBeatInvokeHandler implements HeartBeatInvokeHandler {
             throw new RpcException("Message type do not match " + ClazzUtil.getClazzSimpleName(this.getClass()));
         }
         Response response = buildResponse(request);
-        logger.debug("Scanner heartbeat from {}", ((DefaultRequest) request).getClientIp());
+        logger.debug("Scanner heartbeat from {}", NetUtil.toIpPort(request.getRemoteAddress()));
         return response;
     }
 

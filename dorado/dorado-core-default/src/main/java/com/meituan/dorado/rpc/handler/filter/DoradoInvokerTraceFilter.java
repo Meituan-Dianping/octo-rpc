@@ -15,6 +15,7 @@
  */
 package com.meituan.dorado.rpc.handler.filter;
 
+import com.meituan.dorado.common.util.NetUtil;
 import com.meituan.dorado.common.util.VersionUtil;
 import com.meituan.dorado.rpc.handler.invoker.AbstractInvokerTraceFilter;
 import com.meituan.dorado.trace.meta.TraceParam;
@@ -35,8 +36,8 @@ public class DoradoInvokerTraceFilter extends AbstractInvokerTraceFilter {
         param.setLocalAppkey(req.getAppkey());
         param.setLocalIp(req.getClientIp());
         param.setRemoteAppkey(req.getRemoteAppkey());
-        param.setRemoteIp(req.getClient().getRemoteAddress().getAddress().getHostAddress());
-        param.setRemotePort(req.getClient().getChannel().getRemoteAddress().getPort());
+        param.setRemoteIp(NetUtil.toIP(request.getRemoteAddress()));
+        param.setRemotePort(NetUtil.toPort(request.getRemoteAddress()));
         param.setVersion(VersionUtil.getDoradoVersion());
         param.setProtocol(req.getProtocol());
         param.setTimeout(req.getTimeout());

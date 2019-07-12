@@ -18,8 +18,17 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="clientProxy" class="com.meituan.dorado.config.service.spring.ReferenceBean" destroy-method="destroy">
+    <bean id="clientProxy1" class="com.meituan.dorado.config.service.spring.ReferenceBean" destroy-method="destroy">
         <property name="serviceInterface" value="com.meituan.dorado.test.thrift.api.Echo"/>
+        <property name="directConnAddress" value="127.0.0.1:9001"/>
+        <property name="timeout" value="1000"/>
+        <property name="appkey" value="com.meituan.octo.dorado.client"/>
+        <property name="remoteAppkey" value="com.meituan.octo.dorado.server"/>
+        <property name="remoteOctoProtocol" value="true"/>
+    </bean>
+
+    <bean id="clientProxy2" class="com.meituan.dorado.config.service.spring.ReferenceBean" destroy-method="destroy">
+        <property name="serviceInterface" value="com.meituan.dorado.test.thrift.api.HelloService"/>
         <property name="directConnAddress" value="127.0.0.1:9001"/>
         <property name="timeout" value="1000"/>
         <property name="appkey" value="com.meituan.octo.dorado.client"/>

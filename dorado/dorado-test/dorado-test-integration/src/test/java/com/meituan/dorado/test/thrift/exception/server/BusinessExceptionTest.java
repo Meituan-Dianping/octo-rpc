@@ -51,6 +51,7 @@ public class BusinessExceptionTest {
     public void testBusinessException() {
         try {
             client.testException(new Tweet(1, "name", "empty"));
+            Assert.fail();
         } catch (Exception e) {
             Assert.assertTrue(e instanceof TwitterUnavailable);
         }

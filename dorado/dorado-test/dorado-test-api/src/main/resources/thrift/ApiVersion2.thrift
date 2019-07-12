@@ -1,10 +1,10 @@
-namespace java com.meituan.dorado.test.thrift.exception.api2
+namespace java com.meituan.dorado.test.thrift.exception.api
 
-struct Result {
-    1: string result;
-    2: i32 id;
+struct Result2 {
+    1: required string result;
+    2: required i32 id;
 }
 
-service ApiVersion1 {
-    Result send(1:string message, 2:string param)
+service ApiVersion2 {
+    Result2 send(1:string message, 2:string param)
 }

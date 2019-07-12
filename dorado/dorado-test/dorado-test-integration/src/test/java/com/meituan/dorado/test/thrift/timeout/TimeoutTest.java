@@ -55,6 +55,7 @@ public class TimeoutTest {
     public void testSyncTimeout() {
         try {
             client.sayHello("sync");
+            Assert.fail();
         } catch (Exception e) {
             Assert.assertTrue(e instanceof TimeoutException);
         }
@@ -72,7 +73,7 @@ public class TimeoutTest {
             future.get();
             Assert.fail();
         } catch (Exception e) {
-            Assert.assertTrue(e instanceof TimeoutException);
+            Assert.assertTrue(e.getCause() instanceof TimeoutException);
         }
     }
 
@@ -93,7 +94,7 @@ public class TimeoutTest {
 
             @Override
             public void onError(Throwable e) {
-                resultStr.append(TimeoutException.class.getName());
+                resultStr.append(e.getClass().getName());
             }
         });
 

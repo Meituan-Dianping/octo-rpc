@@ -154,7 +154,6 @@ public abstract class OctoCodec implements Codec {
             request.setSerialize(serialize);
             request.setCompressType((CompressType) attachInfo.get(ATTACH_INFO_COMPRESS_TYPE));
             request.setDoChecksum((Boolean) attachInfo.get(ATTACH_INFO_IS_DO_CHECK));
-            request.setClientIp(channel.getRemoteAddress().getHostName());
             if (request.getMessageType() != MessageType.Normal.getValue()) {
                 if (request.getMessageType() == MessageType.NormalHeartbeat.getValue() ||
                         request.getMessageType() == MessageType.ScannerHeartbeat.getValue()) {

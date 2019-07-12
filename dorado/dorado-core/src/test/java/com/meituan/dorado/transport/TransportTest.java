@@ -40,13 +40,13 @@ public class TransportTest {
         Assert.assertTrue(client.isConnected());
 
         try {
-            client.request(MockUtil.getRequest());
+            client.request(MockUtil.getRequest(), 500);
         } catch(Exception e) {
             Assert.assertTrue(e instanceof IllegalArgumentException);
         }
 
         try {
-            client.request(new Object());
+            client.request(new Object(), 500);
         } catch (Exception e) {
             Assert.assertTrue(e instanceof IllegalArgumentException);
         }

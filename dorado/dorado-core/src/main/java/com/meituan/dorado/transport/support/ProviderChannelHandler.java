@@ -240,8 +240,9 @@ public class ProviderChannelHandler implements ChannelHandler {
     private void prepareReqContext(Channel channel, Request request) {
         request.putAttachment(Constants.LOCAL_IP, channel.getLocalAddress().getHostName());
         request.putAttachment(Constants.LOCAL_PORT, channel.getLocalAddress().getPort());
-        request.putAttachment(Constants.CLIENT_IP, channel.getRemoteAddress().getHostName());
-        request.putAttachment(Constants.CLIENT_PORT, channel.getRemoteAddress().getPort());
+        if (request.getRemoteAddress() == null) {
+            request.setRemoteAddress(channel.getRemoteAddress());
+        }
     }
 
     private void sendFailedResponse(final Channel channel, final InvokeHandler handler, Object message, Throwable e) {

@@ -16,12 +16,14 @@
 package com.meituan.dorado.transport.meta;
 
 import com.meituan.dorado.codec.octo.meta.MessageType;
+import com.meituan.dorado.common.Constants;
 import com.meituan.dorado.rpc.meta.RpcInvocation;
 import com.meituan.dorado.serialize.thrift.ThriftMessageSerializer.ThriftMessageInfo;
 import com.meituan.dorado.trace.meta.TransportTraceInfo;
 import com.meituan.dorado.transport.Client;
 import com.meituan.dorado.util.CompressUtil.CompressType;
 
+import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -59,7 +61,7 @@ public class DefaultRequest implements Request {
 
     private int callType; // 0: replay; 1: noReplay
 
-    private String clientIp;
+    private String clientIp; // 协议中传递的调用端IP
 
     private CompressType compressType = CompressType.NO;
 
@@ -70,6 +72,8 @@ public class DefaultRequest implements Request {
     private ThriftMessageInfo thriftMsgInfo;
 
     private TransportTraceInfo transportTraceInfo; // 调用端传向服务端的traceInfo
+
+    private InetSocketAddress remoteAddress;
 
     // 请求处理的相关上下文消息
     private Map<String, Object> attachments;
@@ -201,6 +205,7 @@ public class DefaultRequest implements Request {
         this.callType = callType;
     }
 
+    @Override
     public int getTimeout() {
         return timeout;
     }
@@ -310,6 +315,16 @@ public class DefaultRequest implements Request {
         } else {
             this.localContexts.putAll(localContexts);
         }
+    }
+
+    @Override
+    public InetSocketAddress getRemoteAddress() {
+        return remoteAddress;
+    }
+
+    @Override
+    public void setRemoteAddress(InetSocketAddress remoteAddress) {
+        this.remoteAddress = remoteAddress;
     }
 
     @Override

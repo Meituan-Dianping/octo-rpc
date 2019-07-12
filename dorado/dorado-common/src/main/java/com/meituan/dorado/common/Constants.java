@@ -24,8 +24,6 @@ public class Constants {
     // context信息 key
     public static final String LOCAL_IP = "localIp";
     public static final String LOCAL_PORT = "localPort";
-    public static final String CLIENT_IP = "clientIp";
-    public static final String CLIENT_PORT = "clientPort";
     public static final String REMOTE_IP = "remoteIp";
     public static final String REMOTE_PORT = "remotePort";
     public static final String REQUEST_SIZE = "requestSize";
@@ -92,6 +90,8 @@ public class Constants {
     public static final String LINK_SUB_CLASS_SYMBOL = "$";
 
     public static final String NORMAL_DISCONNCT_INFO = "Connection reset by peer";
+
+    public static final String UNKNOWN = "unknown";
 
     public enum ProtocolType {
         Thrift("thrift");

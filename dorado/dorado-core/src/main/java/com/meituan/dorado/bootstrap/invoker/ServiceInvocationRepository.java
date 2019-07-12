@@ -52,7 +52,7 @@ public class ServiceInvocationRepository {
     static {
         try {
             if (hashedWheelTimer == null) {
-                hashedWheelTimer = new HashedWheelTimer(new DefaultThreadFactory("DoradoTimeoutScheduler"),
+                hashedWheelTimer = new HashedWheelTimer(new DefaultThreadFactory("DoradoTimeoutScheduler", true),
                         10, TimeUnit.MILLISECONDS);
                 hashedWheelTimer.start();
             }
