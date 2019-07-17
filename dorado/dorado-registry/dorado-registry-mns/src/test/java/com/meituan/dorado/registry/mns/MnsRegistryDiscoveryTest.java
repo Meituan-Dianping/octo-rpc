@@ -62,7 +62,7 @@ public class MnsRegistryDiscoveryTest {
         registryService.register(registryInfo);
         Thread.sleep(10000);
         // 服务发现一个节点
-        discoveryService.subcribe(subscribeInfo, listener);
+        discoveryService.subscribe(subscribeInfo, listener);
         List<Provider> providers = listener.getProviders();
         Assert.assertEquals(1, providers.size());
         Assert.assertEquals(9001, providers.get(0).getPort());
@@ -74,27 +74,27 @@ public class MnsRegistryDiscoveryTest {
         providers = listener.getProviders();
         Assert.assertEquals(0, providers.size());
         // 取消订阅
-        discoveryService.unsubcribe(subscribeInfo);
+        discoveryService.unsubscribe(subscribeInfo);
     }
 
     @Test
     public void testUnsubscribe() throws InterruptedException {
         RegistryInfo registryInfo = genMnsRegistryInfo();
         SubscribeInfo subscribeInfo = genMnsSubscribeInfo();
-        discoveryService.unsubcribe(subscribeInfo);
+        discoveryService.unsubscribe(subscribeInfo);
         MockNotifyLinstener listener = new MockNotifyLinstener();
 
         // 注册
         registryService.register(registryInfo);
         Thread.sleep(15000);
         // 服务发现一个节点
-        discoveryService.subcribe(subscribeInfo, listener);
+        discoveryService.subscribe(subscribeInfo, listener);
         List<Provider> providers = listener.getProviders();
         Assert.assertEquals(1, providers.size());
         Assert.assertEquals(9001, providers.get(0).getPort());
 
         // 取消订阅
-        discoveryService.unsubcribe(subscribeInfo);
+        discoveryService.unsubscribe(subscribeInfo);
         // 注销
         registryService.unregister(registryInfo);
         Thread.sleep(15000);

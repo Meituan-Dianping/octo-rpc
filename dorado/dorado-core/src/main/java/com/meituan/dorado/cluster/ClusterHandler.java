@@ -95,7 +95,7 @@ public abstract class ClusterHandler<T> {
     }
 
     protected Invoker<T> selectNoInvoked(List<Invoker<T>> invokers, List<Invoker<T>> invoked) {
-        List<Invoker<T>> noInvokedList = new ArrayList<Invoker<T>>();
+        List<Invoker<T>> noInvokedList = new ArrayList<>();
 
         for (Invoker invoker : invokers) {
             if (!invoked.contains(invoker)) {

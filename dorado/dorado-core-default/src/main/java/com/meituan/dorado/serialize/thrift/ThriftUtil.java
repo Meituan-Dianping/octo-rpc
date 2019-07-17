@@ -211,7 +211,7 @@ public class ThriftUtil {
         }
         Class<?>[] classes = clazz.getClasses();
         for (Class c : classes) {
-            if (c.isMemberClass() && !c.isInterface() && c.getSimpleName().equals("Client")) {
+            if (c.isMemberClass() && !c.isInterface() && "Client".equals(c.getSimpleName())) {
                 return c;
             }
         }

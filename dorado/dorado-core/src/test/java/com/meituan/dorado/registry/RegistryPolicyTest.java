@@ -38,10 +38,10 @@ public class RegistryPolicyTest {
 
         ProviderListener listener = MockUtil.getInvokerRepository();
         SubscribeInfo info = MockUtil.getSubsribeInfo();
-        policy.subcribe(info, listener);
+        policy.subscribe(info, listener);
         Assert.assertTrue(policy.getSubsribeInfo().containsKey(info));
 
-        policy.unsubcribe(info);
+        policy.unsubscribe(info);
         Assert.assertTrue(!policy.getSubsribeInfo().containsKey(info));
     }
 }

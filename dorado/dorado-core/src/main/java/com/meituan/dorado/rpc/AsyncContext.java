@@ -106,7 +106,7 @@ public class AsyncContext {
 
     public static class MockFuture<V> implements ResponseFuture {
 
-        private V value = null;
+        private V value;
         private ResponseCallback<V> callback;
 
         public MockFuture(V value) {

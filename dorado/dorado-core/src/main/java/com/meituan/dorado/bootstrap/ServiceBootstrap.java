@@ -15,7 +15,6 @@
  */
 package com.meituan.dorado.bootstrap;
 
-import com.meituan.dorado.bootstrap.invoker.ServiceInvocationRepository;
 import com.meituan.dorado.common.Constants;
 import com.meituan.dorado.common.RpcRole;
 import com.meituan.dorado.common.extension.ExtensionLoader;

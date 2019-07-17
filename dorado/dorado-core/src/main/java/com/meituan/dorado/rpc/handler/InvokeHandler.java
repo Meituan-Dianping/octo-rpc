@@ -26,7 +26,7 @@ import com.meituan.dorado.transport.meta.Response;
 @SPI
 public interface InvokeHandler extends Role {
 
-    Response handle(Request requet) throws Throwable;
+    Response handle(Request request) throws Throwable;
 
     Response buildResponse(Request request);
 }

@@ -25,7 +25,7 @@ import com.meituan.dorado.transport.meta.Response;
 public class MockInvokeHandler implements InvokeHandler {
 
     @Override
-    public Response handle(Request requet) {
+    public Response handle(Request request) {
         return new MockResponse();
     }
 

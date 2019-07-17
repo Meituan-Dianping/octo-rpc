@@ -98,7 +98,7 @@ public class FailbackRegistry extends RegistryPolicy {
     @Override
     public void doSubcribe(SubscribeInfo info, ProviderListener listener) {
         try {
-            ((DiscoveryService) registry).subcribe(info, listener);
+            ((DiscoveryService) registry).subscribe(info, listener);
             failedSubscribed.remove(info, listener);
         } catch (ClassCastException e) {
             throw new RegistryException("Expect class " + DiscoveryService.class + " actual is " + registry.getClass(), e);
@@ -106,7 +106,7 @@ public class FailbackRegistry extends RegistryPolicy {
             if (e.getCause() != null && e.getCause() instanceof IllegalArgumentException) {
                 throw e;
             }
-            logger.error("Failed to subcribe {}, waiting for retry", info.getServiceName(), e);
+            logger.error("Failed to subscribe {}, waiting for retry", info.getServiceName(), e);
             // 将失败的订阅记录到失败列表，定时重试
             failedSubscribed.put(info, listener);
         }
@@ -115,7 +115,7 @@ public class FailbackRegistry extends RegistryPolicy {
     @Override
     public void doUnsubcribe(SubscribeInfo info) {
         try {
-            ((DiscoveryService) registry).unsubcribe(info);
+            ((DiscoveryService) registry).unsubscribe(info);
             failedUnsubscribed.remove(info);
         } catch (ClassCastException e) {
             throw new RegistryException("Expect class " + DiscoveryService.class + " actual is " + registry.getClass(), e);
@@ -123,7 +123,7 @@ public class FailbackRegistry extends RegistryPolicy {
             if (e.getCause() != null && e.getCause() instanceof IllegalArgumentException) {
                 throw e;
             }
-            logger.error("Failed to unsubcribe {}, waiting for retry", info.getServiceName(), e);
+            logger.error("Failed to unsubscribe {}, waiting for retry", info.getServiceName(), e);
             // 将失败的取消订阅请求记录到失败列表，定时重试
             failedUnsubscribed.add(info);
         }
@@ -148,7 +148,7 @@ public class FailbackRegistry extends RegistryPolicy {
         }
         for (SubscribeInfo info : failedSubscribed.keySet()) {
             try {
-                ((DiscoveryService) registry).subcribe(info, failedSubscribed.get(info));
+                ((DiscoveryService) registry).subscribe(info, failedSubscribed.get(info));
                 failedSubscribed.remove(info);
             } catch (Throwable e) {
                 logger.warn("Failed to retry subscribe {}, waiting for again", info.getServiceName(), e);
@@ -156,7 +156,7 @@ public class FailbackRegistry extends RegistryPolicy {
         }
         for (SubscribeInfo info : failedUnsubscribed) {
             try {
-                ((DiscoveryService) registry).unsubcribe(info);
+                ((DiscoveryService) registry).unsubscribe(info);
                 failedUnsubscribed.remove(info);
             } catch (Throwable e) {
                 logger.warn("Failed to retry unsubscribe {}, waiting for again", info.getServiceName(), e);

@@ -25,7 +25,7 @@ import java.util.*;
 public class RpcInvocation {
 
     private static final Logger logger = LoggerFactory.getLogger(RpcInvocation.class);
-    private static final List<String> FRAMEWORKE_PARAM_KEYS = new ArrayList<String>(Arrays.asList(Constants.RPC_REQUEST,
+    private static final List<String> FRAMEWORK_PARAM_KEYS = new ArrayList<String>(Arrays.asList(Constants.RPC_REQUEST,
             Constants.TRACE_PARAM, Constants.TRACE_FILTER_FINISHED, Constants.TRACE_TIMELINE));
 
     private Class<?> serviceInterface;
@@ -75,7 +75,7 @@ public class RpcInvocation {
         if (value == null) {
             return;
         }
-        if (containsAttachment(key) && FRAMEWORKE_PARAM_KEYS.contains(key)) {
+        if (containsAttachment(key) && FRAMEWORK_PARAM_KEYS.contains(key)) {
             logger.warn("Framework param[{}] cannot be put repeatedly.", key);
             return;
         }
