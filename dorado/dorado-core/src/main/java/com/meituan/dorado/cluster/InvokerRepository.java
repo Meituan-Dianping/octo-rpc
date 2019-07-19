@@ -120,7 +120,7 @@ public class InvokerRepository<T> implements ProviderListener {
 
     public void destroy() {
         if (!isDirectConn) {
-            registry.unsubcribe(subscribeInfo);
+            registry.unsubscribe(subscribeInfo);
             registry.destroy();
         }
         destroyInvokers();

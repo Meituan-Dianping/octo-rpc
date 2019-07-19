@@ -72,7 +72,7 @@ public class ServiceSubscriber extends ServiceBootstrap {
         repository.setSubscribeInfo(info);
         repository.setRegistry(registry);
 
-        registry.subcribe(info, repository);
+        registry.subscribe(info, repository);
     }
 
     private static ClusterHandler getClusterHandler(String clusterPolicy, InvokerRepository repository) {

@@ -43,7 +43,7 @@ public enum HttpURI {
     // 服务端 接口信息的json schema
 //    SERVICE_JSON_SCHEMA("/service.jsonSchema", RpcRole.PROVIDER),
 
-    UNKNOW("", null);
+    UNKNOWN("", null);
 
     private String uri;
     private RpcRole role;
@@ -65,7 +65,7 @@ public enum HttpURI {
     public static Set<String> getSupportUriOfRole(RpcRole role) {
         Set<String> uris = new HashSet<String>();
         for (HttpURI uri : HttpURI.values()) {
-            if (uri == UNKNOW) {
+            if (uri == UNKNOWN) {
                 continue;
             }
             if (RpcRole.MULTIROLE == role || RpcRole.MULTIROLE == uri.role || uri.role == role) {
@@ -81,6 +81,6 @@ public enum HttpURI {
                 return uri;
             }
         }
-        return UNKNOW;
+        return UNKNOWN;
     }
 }
