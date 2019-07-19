@@ -73,7 +73,7 @@ public abstract class OctoCodec implements Codec {
     private static final String ATTACH_INFO_SERIALIZE_CODE = "serializeCode";
 
     @Override
-    public byte[] encode(Channel channel, Object message, Map<String, Object> attachments) throws IOException {
+    public byte[] encode(Channel channel, Object message, Map<String, Object> attachments) throws ProtocolException {
         Object obj;
         byte[] bodyBytes = new byte[0];
         if (message instanceof DefaultRequest) {
@@ -120,7 +120,7 @@ public abstract class OctoCodec implements Codec {
     }
 
     @Override
-    public Object decode(Channel channel, byte[] buffer, Map<String, Object> attachments) throws IOException {
+    public Object decode(Channel channel, byte[] buffer, Map<String, Object> attachments) throws ProtocolException {
         if (buffer.length < PACKAGE_HEAD_LENGTH) {
             throw new ProtocolException("Message length less than header length");
         }
