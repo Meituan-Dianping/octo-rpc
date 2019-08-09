@@ -48,4 +48,31 @@ public class MethodUtil {
         buf.append(")");
         return buf.toString();
     }
+
+    public static Object getDefaultResult(Class<?> returnType) {
+        if (returnType.isPrimitive()) {
+            String returnTypeName = returnType.getSimpleName();
+            if ("boolean".equals(returnTypeName)) {
+                return false;
+            } else if ("char".equals(returnTypeName)) {
+                return '0';
+            } else if ("byte".equals(returnTypeName)) {
+                return (byte) 0;
+            } else if ("short".equals(returnTypeName)) {
+                return (short) 0;
+            } else if ("int".equals(returnTypeName)) {
+                return 0;
+            } else if ("long".equals(returnTypeName)) {
+                return (long) 0;
+            } else if ("float".equals(returnTypeName)) {
+                return (float) 0;
+            } else if ("double".equals(returnTypeName)) {
+                return (double) 0;
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
 }

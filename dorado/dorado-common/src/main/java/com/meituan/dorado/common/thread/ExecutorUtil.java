@@ -16,10 +16,11 @@
 package com.meituan.dorado.common.thread;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 public class ExecutorUtil {
+
+    private static final long DEFAULT_THREAD_KEEP_ALIVE_TIME = 30L;
 
     public static void shutdownExecutors(List<ExecutorService> executors, int timeoutMillis) {
         if (executors == null) {
@@ -41,6 +42,32 @@ public class ExecutorUtil {
             }
         } catch (InterruptedException ex) {
             executor.shutdownNow();
+        }
+    }
+
+    public static ThreadPoolExecutor getThreadPool(int corePoolSize, int maximumPoolSize, int workQueueSize,
+                                                   BlockingQueue<Runnable> workQueue, DefaultThreadFactory threadFactory) {
+        if (workQueue != null) {
+            return new ThreadPoolExecutor(corePoolSize,
+                    maximumPoolSize,
+                    DEFAULT_THREAD_KEEP_ALIVE_TIME,
+                    TimeUnit.SECONDS,
+                    workQueue,
+                    threadFactory);
+        } else if (workQueueSize > 0) {
+            return new ThreadPoolExecutor(corePoolSize,
+                    maximumPoolSize,
+                    DEFAULT_THREAD_KEEP_ALIVE_TIME,
+                    TimeUnit.SECONDS,
+                    new LinkedBlockingQueue<Runnable>(workQueueSize),
+                    threadFactory);
+        } else {
+            return new ThreadPoolExecutor(corePoolSize,
+                    maximumPoolSize,
+                    DEFAULT_THREAD_KEEP_ALIVE_TIME,
+                    TimeUnit.SECONDS,
+                    new SynchronousQueue<Runnable>(),
+                    threadFactory);
         }
     }
 }

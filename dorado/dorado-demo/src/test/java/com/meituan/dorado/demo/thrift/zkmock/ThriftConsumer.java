@@ -15,7 +15,6 @@
  */
 package com.meituan.dorado.demo.thrift.zkmock;
 
-import com.meituan.dorado.bootstrap.ServiceBootstrap;
 import com.meituan.dorado.test.thrift.api.HelloService;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 

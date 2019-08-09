@@ -46,11 +46,7 @@ public class AsyncContext {
         try {
             try {
                 setAttachment(Constants.ASYNC, Boolean.TRUE);
-                final T o = callable.call();
-                if (o != null) {
-                    logger.warn("Do async call but actual action is sync");
-                    return new MockFuture(o);
-                }
+                callable.call();
             } catch (Exception e) {
                 throw new RpcException(e);
             } finally {

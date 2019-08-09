@@ -15,18 +15,18 @@
  */
 package com.meituan.dorado.demo.thrift.multiport;
 
-import com.meituan.dorado.bootstrap.ServiceBootstrap;
 import com.meituan.dorado.test.thrift.api.Echo;
 import com.meituan.dorado.test.thrift.api.HelloService;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-public class ThriftConsumerMutilApi {
+public class ThriftConsumerMultiApi {
+
     public static void main(String[] args) {
         try {
             ClassPathXmlApplicationContext beanFactory = new ClassPathXmlApplicationContext("thrift/multiport/thrift-consumer-multiapi.xml");
 
-            HelloService.Iface userservice = (HelloService.Iface) beanFactory.getBean("helloService");
-            System.out.println(userservice.sayHello("Emma"));
+            HelloService.Iface userService = (HelloService.Iface) beanFactory.getBean("helloService");
+            System.out.println(userService.sayHello("Emma"));
 
             Echo.Iface echo = (Echo.Iface) beanFactory.getBean("echoService");
             System.out.println(echo.echo("Hello world"));

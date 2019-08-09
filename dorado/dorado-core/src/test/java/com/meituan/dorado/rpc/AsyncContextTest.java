@@ -39,8 +39,9 @@ public class AsyncContextTest {
 
         Assert.assertNull(context.getAttachment(Constants.ASYNC));
         try {
-            Assert.assertTrue(result.get() == 10);
+            Assert.assertTrue(result == null);
         } catch (Exception e) {
+            e.printStackTrace();
            Assert.fail();
         }
 

@@ -47,7 +47,6 @@ public class RegistryTest {
 
     public class MockNotifyListener implements ProviderListener {
         private ConcurrentMap<String, Provider> providers = new ConcurrentHashMap<>();
-        ;
 
         @Override
         public void notify(List<Provider> list) {

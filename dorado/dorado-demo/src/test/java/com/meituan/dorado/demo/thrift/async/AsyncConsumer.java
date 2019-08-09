@@ -15,7 +15,6 @@
  */
 package com.meituan.dorado.demo.thrift.async;
 
-import com.meituan.dorado.bootstrap.ServiceBootstrap;
 import com.meituan.dorado.rpc.AsyncContext;
 import com.meituan.dorado.rpc.ResponseCallback;
 import com.meituan.dorado.rpc.ResponseFuture;

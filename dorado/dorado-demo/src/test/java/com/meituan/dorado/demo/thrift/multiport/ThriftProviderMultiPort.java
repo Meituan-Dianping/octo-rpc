@@ -19,7 +19,8 @@ package com.meituan.dorado.demo.thrift.multiport;
 import com.meituan.dorado.demo.ConsoleCommandProcessor;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-public class ThriftProviderMutilPort {
+public class ThriftProviderMultiPort {
+
     public static void main(String[] args) throws Exception {
         ClassPathXmlApplicationContext beanFactory = new ClassPathXmlApplicationContext("thrift/multiport/thrift-provider-multiport.xml");
 

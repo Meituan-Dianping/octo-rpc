@@ -205,7 +205,7 @@ public class DefaultFuture<V> implements ResponseFuture<V> {
                     }
                 });
             }
-        } else if (value != null) {
+        } else {
             if (executor == null) {
                 callback.onComplete(value);
             } else {

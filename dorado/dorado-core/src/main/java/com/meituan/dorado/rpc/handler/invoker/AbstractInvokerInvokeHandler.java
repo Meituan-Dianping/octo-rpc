@@ -30,6 +30,7 @@ import com.meituan.dorado.rpc.meta.RpcResult;
 import com.meituan.dorado.trace.meta.TraceTimeline;
 import com.meituan.dorado.transport.meta.Request;
 import com.meituan.dorado.transport.meta.Response;
+import com.meituan.dorado.util.MethodUtil;
 
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -60,7 +61,9 @@ public abstract class AbstractInvokerInvokeHandler implements InvokeHandler {
         ServiceInvocationRepository.addTimeoutTask(request, future);
         AsyncContext.getContext().setFuture(future);
         Response response = buildResponse(request);
-        response.setResult(new RpcResult());
+        RpcResult result = new RpcResult();
+        result.setReturnVal(MethodUtil.getDefaultResult(request.getData().getMethod().getReturnType()));
+        response.setResult(result);
         return response;
     }
 
