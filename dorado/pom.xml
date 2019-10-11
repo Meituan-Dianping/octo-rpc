@@ -42,7 +42,7 @@
         <cat.version>3.0.0</cat.version>
 
         <commons-lang3>3.7</commons-lang3>
-        <netty.version>4.1.25.Final</netty.version>
+        <netty.version>4.1.42.Final</netty.version>
         <libthrift.version>0.9.3</libthrift.version>
         <snappy.version>1.1.1.6</snappy.version>
         <swift.version>0.14.0</swift.version>
