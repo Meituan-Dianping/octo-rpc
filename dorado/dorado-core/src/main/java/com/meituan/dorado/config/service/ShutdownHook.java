@@ -1,12 +1,7 @@
+package com.meituan.dorado.config.service;
 
-## Dorado 优雅关闭
-
-Dorado的优雅关闭通过ShutDownHook方式实现，调用端和服务端通过添加hook进行资源的清理和关闭
-
-```java
-protected synchronized void addShutDownHook() {
-    ShutdownHook.register(this);
-}
+import java.util.LinkedList;
+import java.util.List;
 
 public class ShutdownHook extends Thread {
 
@@ -30,4 +25,3 @@ public class ShutdownHook extends Thread {
         }
     }
 }
-```
