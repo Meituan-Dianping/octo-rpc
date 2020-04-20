@@ -16,7 +16,7 @@
 
 package com.meituan.dorado.registry.mns;
 
-import com.meituan.dorado.bootstrap.provider.ProviderStatus;
+import com.meituan.dorado.bootstrap.provider.meta.ProviderStatus;
 import com.meituan.dorado.common.Constants;
 import com.meituan.dorado.common.exception.RegistryException;
 import com.meituan.dorado.registry.DiscoveryService;
@@ -67,7 +67,7 @@ public class MnsDiscoveryService implements DiscoveryService {
      * @param notifyListener
      */
     @Override
-    public synchronized void subcribe(SubscribeInfo subscribeInfo, ProviderListener notifyListener) {
+    public synchronized void subscribe(SubscribeInfo subscribeInfo, ProviderListener notifyListener) {
         ProtocolRequest protocolRequest = genProtocolRequest(subscribeInfo);
         try {
             IServiceListChangeListener listener = listeners.get(subscribeInfo);
@@ -89,7 +89,7 @@ public class MnsDiscoveryService implements DiscoveryService {
     }
 
     @Override
-    public synchronized void unsubcribe(SubscribeInfo subscribeInfo) {
+    public synchronized void unsubscribe(SubscribeInfo subscribeInfo) {
         try {
             ProtocolRequest protocolRequest = genProtocolRequest(subscribeInfo);
             MnsInvoker.removeServiceListener(protocolRequest, listeners.remove(subscribeInfo));

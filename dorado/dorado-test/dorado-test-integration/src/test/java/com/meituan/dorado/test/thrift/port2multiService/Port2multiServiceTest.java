@@ -17,9 +17,9 @@ package com.meituan.dorado.test.thrift.port2multiService;
 
 import com.meituan.dorado.common.exception.TimeoutException;
 import com.meituan.dorado.test.thrift.api.Echo;
+import com.meituan.dorado.test.thrift.api.HelloService;
 import com.meituan.dorado.test.thrift.filter.ClientQpsLimitFilter;
 import com.meituan.dorado.test.thrift.filter.ServerQpsLimitFilter;
-import org.apache.thrift.TException;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -30,13 +30,17 @@ public class Port2multiServiceTest {
 
     private static ClassPathXmlApplicationContext clientBeanFactory;
     private static ClassPathXmlApplicationContext serverBeanFactory;
-    private static Echo.Iface client;
+    private static Echo.Iface client1;
+    private static HelloService.Iface client2;
+
 
     @BeforeClass
     public static void start() {
         serverBeanFactory = new ClassPathXmlApplicationContext("thrift/port2multiService/thrift-provider.xml");
         clientBeanFactory = new ClassPathXmlApplicationContext("thrift/port2multiService/thrift-consumer.xml");
-        client = (Echo.Iface) clientBeanFactory.getBean("clientProxy");
+        client1 = (Echo.Iface) clientBeanFactory.getBean("clientProxy1");
+        client2 = (HelloService.Iface) clientBeanFactory.getBean("clientProxy2");
+
         ClientQpsLimitFilter.disable();
         ServerQpsLimitFilter.disable();
     }
@@ -48,9 +52,20 @@ public class Port2multiServiceTest {
     }
 
     @Test
-    public void testMultiService() {
+    public void testMultiServiceOctoProtocol() {
         try {
-            String message = client.echo("this is a message");
+            String message = client1.echo("this is a message");
+            Assert.assertEquals("echo: this is a message", message);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Assert.fail(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testMultiServiceOriProtocol() {
+        try {
+            String message = client2.sayHello("this is a message");
             Assert.fail();
         } catch (Exception e) {
             Assert.assertTrue(e instanceof TimeoutException);

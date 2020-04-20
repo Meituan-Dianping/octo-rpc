@@ -28,6 +28,8 @@ public class DefaultResponse implements Response {
 
     private Long seq;
 
+    private String serviceName;
+
     private Class<?> serviceInterface;
 
     private byte statusCode;
@@ -78,6 +80,7 @@ public class DefaultResponse implements Response {
             throw new TimeoutException("Request has removed, cause Timeout happened earlier.");
         }
         this.seq = request.getSeq();
+        this.serviceName = request.getServiceName();
         this.serviceInterface = request.getServiceInterface();
         this.messageType = request.getMessageType();
         this.doChecksum = request.getDoChecksum();
@@ -301,7 +304,6 @@ public class DefaultResponse implements Response {
 
     @Override
     public String toString() {
-        String serviceInterfaceName = serviceInterface == null ? "Unknown" : serviceInterface.getName();
-        return "Response(" + serviceInterfaceName + ")";
+        return "Response(" + serviceName + ")";
     }
 }

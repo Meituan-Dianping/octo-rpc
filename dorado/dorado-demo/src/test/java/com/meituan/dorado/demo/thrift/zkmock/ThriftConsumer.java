@@ -15,7 +15,6 @@
  */
 package com.meituan.dorado.demo.thrift.zkmock;
 
-import com.meituan.dorado.bootstrap.ServiceBootstrap;
 import com.meituan.dorado.test.thrift.api.HelloService;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -29,7 +28,6 @@ public class ThriftConsumer {
             System.out.println(userservice.sayHello("Emma"));
 
             beanFactory.destroy();
-            ServiceBootstrap.clearGlobalResource();
             System.exit(0);
         } catch (Exception e) {
             e.printStackTrace();

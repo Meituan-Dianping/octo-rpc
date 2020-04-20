@@ -48,12 +48,13 @@ public class ThriftUtil {
     public static boolean isAnnotation(Class<?> clazz) {
         if (!annotationMap.containsKey(clazz)) {
             Set<ThriftService> serviceAnnotations = ReflectionHelper.getEffectiveClassAnnotations(clazz, ThriftService.class);
-            if (serviceAnnotations.size() == 1) {
+            if (serviceAnnotations.size() <= 0) {
+                annotationMap.put(clazz, false);
+            } else if (serviceAnnotations.size() == 1) {
                 annotationMap.put(clazz, true);
-            } else if (serviceAnnotations.size() > 1) {
+            } else {
                 logger.error("Service class:{} has multiple conflicting @ThriftService", clazz.getName());
             }
-            annotationMap.put(clazz, false);
         }
         return annotationMap.get(clazz);
     }
@@ -210,7 +211,7 @@ public class ThriftUtil {
         }
         Class<?>[] classes = clazz.getClasses();
         for (Class c : classes) {
-            if (c.isMemberClass() && !c.isInterface() && c.getSimpleName().equals("Client")) {
+            if (c.isMemberClass() && !c.isInterface() && "Client".equals(c.getSimpleName())) {
                 return c;
             }
         }

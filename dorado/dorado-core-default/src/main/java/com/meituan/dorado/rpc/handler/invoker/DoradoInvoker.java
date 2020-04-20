@@ -53,6 +53,7 @@ public class DoradoInvoker<T> extends AbstractInvoker<T> {
         request.setCompressType(CompressUtil.CompressType.NO);
         request.setClientIp(NetUtil.getLocalHost());
         request.setClient(client);
+        request.setRemoteAddress(client.getRemoteAddress());
 
         return request;
     }

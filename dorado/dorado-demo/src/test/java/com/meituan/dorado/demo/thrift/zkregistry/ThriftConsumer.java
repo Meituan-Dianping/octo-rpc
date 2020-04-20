@@ -15,7 +15,6 @@
  */
 package com.meituan.dorado.demo.thrift.zkregistry;
 
-import com.meituan.dorado.bootstrap.ServiceBootstrap;
 import com.meituan.dorado.test.thrift.api.HelloService;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -28,11 +27,10 @@ public class ThriftConsumer {
         try {
             ClassPathXmlApplicationContext beanFactory = new ClassPathXmlApplicationContext("thrift/zkregistry/thrift-consumer.xml");
 
-            HelloService.Iface userservice = (HelloService.Iface) beanFactory.getBean("helloService");
-            System.out.println(userservice.sayHello("Emma"));
+            HelloService.Iface userService = (HelloService.Iface) beanFactory.getBean("helloService");
+            System.out.println(userService.sayHello("Emma"));
 
             beanFactory.destroy();
-            ServiceBootstrap.clearGlobalResource();
             System.exit(0);
         } catch (Exception e) {
             e.printStackTrace();

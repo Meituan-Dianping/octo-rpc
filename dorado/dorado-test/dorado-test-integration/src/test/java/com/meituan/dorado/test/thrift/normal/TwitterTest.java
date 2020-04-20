@@ -55,8 +55,7 @@ public class TwitterTest {
     }
 
     @Test
-    public void baseTypeTest() throws InterruptedException {
-
+    public void baseTypeTest() {
         try {
             boolean b = true;
             boolean result = oriThriftClient.testBool(b);

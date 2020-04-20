@@ -34,10 +34,19 @@ public abstract class ThriftMessageSerializer {
     public static class ThriftMessageInfo {
         String methodName;
         int seqId;
+        boolean oldProtocol;
 
         public ThriftMessageInfo(String methodName, int seqId) {
             this.methodName = methodName;
             this.seqId = seqId;
+        }
+
+        public boolean isOldProtocol() {
+            return oldProtocol;
+        }
+
+        public void setOldProtocol(boolean oldProtocol) {
+            this.oldProtocol = oldProtocol;
         }
     }
 }

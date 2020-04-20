@@ -21,12 +21,17 @@ import com.meituan.dorado.common.extension.ExtensionLoader;
 import com.meituan.dorado.registry.RegistryFactory;
 import com.meituan.dorado.rpc.handler.filter.Filter;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
 
 public class ProviderConfig implements Disposable {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProviderConfig.class);
 
     protected String appkey;
     // mns, zookeeper://address?k=v&k=v; 没配置则从SPI中获取
@@ -40,6 +45,11 @@ public class ProviderConfig implements Disposable {
     private int port = Constants.DEFAULT_SERVER_PORT;
     // 网络IO线程数
     private int ioWorkerThreadCount = Constants.DEFAULT_IO_WORKER_THREAD_COUNT;
+    // 业务线程池配置1: 参数
+    private int bizCoreWorkerThreadCount = Constants.DEFAULT_BIZ_CORE_WORKER_THREAD_COUNT;
+    private int bizMaxWorkerThreadCount = Constants.DEFAULT_BIZ_MAX_WORKER_THREAD_COUNT;
+    private int bizWorkerQueueSize = Constants.DEFAULT_BIZ_WORKER_QUEUES;
+    private BlockingQueue<Runnable> threadPoolQueue;
 
     // 单端口单服务
     private ServiceConfig serviceConfig;
@@ -59,6 +69,7 @@ public class ProviderConfig implements Disposable {
     private volatile boolean destroyed;
 
     public void init() {
+        check();
         if (StringUtils.isBlank(registry)) {
             RegistryFactory registryFactory = ExtensionLoader.getExtension(RegistryFactory.class);
             registry = registryFactory.getName();
@@ -72,6 +83,14 @@ public class ProviderConfig implements Disposable {
         }
         addShutDownHook();
         ServicePublisher.publishService(this);
+    }
+
+    protected void check() {
+        if (bizCoreWorkerThreadCount > bizMaxWorkerThreadCount) {
+            throw new IllegalArgumentException("bizCoreWorkerThreadCount must less than bizMaxWorkerThreadCount");
+        } else if (bizCoreWorkerThreadCount == bizMaxWorkerThreadCount) {
+            LOGGER.warn("bizCoreWorkerThreadCount equals to bizMaxWorkerThreadCount, it may cause many idle thread kept in pool.");
+        }
     }
 
     public synchronized void destroy() {
@@ -192,6 +211,38 @@ public class ProviderConfig implements Disposable {
 
     public void setEnv(String env) {
         this.env = env;
+    }
+
+    public int getBizCoreWorkerThreadCount() {
+        return bizCoreWorkerThreadCount;
+    }
+
+    public void setBizCoreWorkerThreadCount(int bizCoreWorkerThreadCount) {
+        this.bizCoreWorkerThreadCount = bizCoreWorkerThreadCount;
+    }
+
+    public int getBizMaxWorkerThreadCount() {
+        return bizMaxWorkerThreadCount;
+    }
+
+    public void setBizMaxWorkerThreadCount(int bizMaxWorkerThreadCount) {
+        this.bizMaxWorkerThreadCount = bizMaxWorkerThreadCount;
+    }
+
+    public int getBizWorkerQueueSize() {
+        return bizWorkerQueueSize;
+    }
+
+    public void setBizWorkerQueueSize(int bizWorkerQueueSize) {
+        this.bizWorkerQueueSize = bizWorkerQueueSize;
+    }
+
+    public BlockingQueue<Runnable> getThreadPoolQueue() {
+        return threadPoolQueue;
+    }
+
+    public void setThreadPoolQueue(BlockingQueue<Runnable> threadPoolQueue) {
+        this.threadPoolQueue = threadPoolQueue;
     }
 
 }

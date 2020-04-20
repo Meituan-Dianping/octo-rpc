@@ -25,6 +25,7 @@
         <property name="appkey" value="com.meituan.octo.dorado.server"/>
         <property name="port" value="9001"/>
         <property name="registry" value="mock"/>
+        <property name="bizMaxWorkerThreadCount" value="256"/>
         <property name="serviceConfigList">
             <list>
                 <ref bean="helloServiceConfig"/>
@@ -36,12 +37,10 @@
     <bean id="helloServiceConfig" class="com.meituan.dorado.config.service.ServiceConfig">
         <property name="serviceInterface" value="com.meituan.dorado.test.thrift.api.HelloService"/>
         <property name="serviceImpl" ref="helloServiceProcessor"/>
-        <property name="bizMaxWorkerThreadCount" value="256"/>
     </bean>
 
     <bean id="echoServiceConfig" class="com.meituan.dorado.config.service.ServiceConfig">
         <property name="serviceInterface" value="com.meituan.dorado.test.thrift.api.Echo"/>
         <property name="serviceImpl" ref="echoServiceProcessor"/>
-        <property name="bizMaxWorkerThreadCount" value="256"/>
     </bean>
 </beans>

@@ -5,23 +5,29 @@ Dorado的优雅关闭通过ShutDownHook方式实现，调用端和服务端通�
 
 ```java
 protected synchronized void addShutDownHook() {
-    if (hook == null) {
-        hook = new ShutDownHook(this);
-        Runtime.getRuntime().addShutdownHook(hook);
-    }
+    ShutdownHook.register(this);
 }
 
-class ShutDownHook extends Thread {
-    private ReferenceConfig config;
-    
-    public ShutDownHook(ReferenceConfig config) {
-        this.config = config;
+public class ShutdownHook extends Thread {
+
+    private static final List<Disposable> configs = new LinkedList<>();
+
+    static {
+        Runtime.getRuntime().addShutdownHook(new ShutdownHook());
     }
-    
+
+    public static synchronized void register(Disposable config) {
+        configs.add(config);
+    }
+
+    private ShutdownHook() {
+        super("DoradoShutdownHook-Thread");
+    }
     @Override
     public void run() {
-        hook = null;
-        config.destroy(); 
+        for (Disposable config : configs) {
+            config.destroy();
+        }
     }
 }
 ```

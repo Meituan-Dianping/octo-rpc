@@ -20,7 +20,6 @@ import com.meituan.dorado.transport.meta.DefaultResponse;
 import com.meituan.dorado.transport.meta.Request;
 import com.meituan.dorado.transport.meta.Response;
 import org.apache.thrift.TBase;
-import org.apache.thrift.TException;
 
 public class DoradoInvokerInvokeHandler extends AbstractInvokerInvokeHandler {
 
@@ -34,7 +33,8 @@ public class DoradoInvokerInvokeHandler extends AbstractInvokerInvokeHandler {
         try {
             return super.handle(request);
         } catch (Throwable e) {
-            if (e.getCause() != null && e.getCause() instanceof TException && e.getCause() instanceof TBase) {
+            if (e.getCause() != null && e.getCause() instanceof TBase) {
+                // 若是thrift自定义异常取cause
                 throw e.getCause();
             }
             throw e;

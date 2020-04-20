@@ -50,10 +50,11 @@ public abstract class ClusterHandler<T> {
         loadBalance = LoadBalanceFactory.getLoadBalance(repository.getClientConfig().getServiceName());
 
         List<Invoker<T>> invokerList = obtainInvokers();
-        List<Invoker<T>> routeInvokers = router.route(invokerList);
-        if (routeInvokers == null || routeInvokers.isEmpty()) {
+        List<Invoker<T>> invokersAfterRoute = router.route(invokerList);
+        if (invokersAfterRoute == null || invokersAfterRoute.isEmpty()) {
             logger.error("Provider list is empty after route, router policy:{}, ignore router policy", router.getName());
-            invokerList = routeInvokers;
+        } else {
+            invokerList = invokersAfterRoute;
         }
         return doInvoke(invocation, invokerList);
     }
@@ -94,7 +95,7 @@ public abstract class ClusterHandler<T> {
     }
 
     protected Invoker<T> selectNoInvoked(List<Invoker<T>> invokers, List<Invoker<T>> invoked) {
-        List<Invoker<T>> noInvokedList = new ArrayList<Invoker<T>>();
+        List<Invoker<T>> noInvokedList = new ArrayList<>();
 
         for (Invoker invoker : invokers) {
             if (!invoked.contains(invoker)) {

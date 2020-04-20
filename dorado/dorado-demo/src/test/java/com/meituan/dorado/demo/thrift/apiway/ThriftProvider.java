@@ -15,7 +15,6 @@
  */
 package com.meituan.dorado.demo.thrift.apiway;
 
-import com.meituan.dorado.bootstrap.ServiceBootstrap;
 import com.meituan.dorado.config.service.ProviderConfig;
 import com.meituan.dorado.config.service.ServiceConfig;
 import com.meituan.dorado.test.thrift.api.HelloService;
@@ -54,7 +53,6 @@ public class ThriftProvider {
         } finally {
             config.destroy();
         }
-        ServiceBootstrap.clearGlobalResource();
         zkServer.close();
     }
 }

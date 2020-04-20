@@ -39,7 +39,6 @@ public class ZooKeeperNodeInfoTest extends RegistryTest {
         } catch (IOException e) {
             Assert.fail();
         }
-
     }
 
     public SubscribeInfo genDiffServiceNameSubscribeInfo() {

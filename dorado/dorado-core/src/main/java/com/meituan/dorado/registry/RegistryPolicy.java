@@ -66,14 +66,14 @@ public abstract class RegistryPolicy implements RegistryService, DiscoveryServic
     }
 
     @Override
-    public void subcribe(SubscribeInfo info, ProviderListener listener) {
+    public void subscribe(SubscribeInfo info, ProviderListener listener) {
         subscribed.put(info, listener);
         doSubcribe(info, listener);
         logger.info("Subscribe {} by {}", info.toString(), registry.getClass().getName());
     }
 
     @Override
-    public void unsubcribe(SubscribeInfo info) {
+    public void unsubscribe(SubscribeInfo info) {
         subscribed.remove(info);
         doUnsubcribe(info);
         logger.info("Unsubscribe {} by {}", info.toString(), registry.getClass().getName());

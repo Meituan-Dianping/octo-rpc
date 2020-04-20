@@ -17,16 +17,20 @@ package com.meituan.dorado.test.thrift.methodTimeout;
 
 
 import com.meituan.dorado.common.exception.TimeoutException;
-import com.meituan.dorado.test.thrift.api.Echo;
+import com.meituan.dorado.rpc.AsyncContext;
+import com.meituan.dorado.rpc.ResponseFuture;
 import com.meituan.dorado.test.thrift.api.HelloService;
 import com.meituan.dorado.test.thrift.filter.ClientQpsLimitFilter;
 import com.meituan.dorado.test.thrift.filter.ServerQpsLimitFilter;
-import org.apache.thrift.TException;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import java.sql.Time;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 
 public class MethodTimeoutTest {
 
@@ -53,8 +57,27 @@ public class MethodTimeoutTest {
     public void testMethodTimeout() {
         try {
             client.sayHello("this is a message");
+            Assert.fail();
         } catch (Exception e) {
-            Assert.assertEquals(TimeoutException.class, e);
+            Assert.assertTrue(e instanceof TimeoutException);
         }
+    }
+
+    @Test
+    public void testAsync() {
+        ResponseFuture<String> future = AsyncContext.getContext().asyncCall(new Callable<String>() {
+            @Override
+            public String call() throws Exception {
+                return client.sayHello("Dorado async");
+            }
+        });
+        try {
+            future.get();
+        } catch (ExecutionException e) {
+            Assert.assertTrue(e.getCause() instanceof TimeoutException);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+
     }
 }

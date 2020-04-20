@@ -54,7 +54,6 @@ public class ThriftClient {
         }
 
         beanFactory.destroy();
-        ServiceBootstrap.clearGlobalResource();
         System.exit(0);
     }
 }

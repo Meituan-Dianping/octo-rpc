@@ -18,6 +18,7 @@ package com.meituan.dorado.rpc.handler.filter;
 import com.meituan.dorado.bootstrap.provider.ServicePublisher;
 import com.meituan.dorado.common.Constants;
 import com.meituan.dorado.common.util.CommonUtil;
+import com.meituan.dorado.common.util.NetUtil;
 import com.meituan.dorado.common.util.VersionUtil;
 import com.meituan.dorado.rpc.handler.provider.AbstractProviderTraceFilter;
 import com.meituan.dorado.trace.meta.TraceParam;
@@ -39,10 +40,10 @@ public class DoradoProviderTraceFilter extends AbstractProviderTraceFilter {
         String serviceName = ClazzUtil.getClazzSimpleName(req.getServiceInterface());
         param.setSpanName(serviceName + "." + req.getData().getMethod().getName());
         param.setLocalAppkey(ServicePublisher.getAppkey());
-        param.setLocalIp(CommonUtil.objectToStr(attachments.get(Constants.LOCAL_IP), "Unknown"));
+        param.setLocalIp(CommonUtil.objectToStr(attachments.get(Constants.LOCAL_IP), Constants.UNKNOWN));
         param.setLocalPort(CommonUtil.objectToInt(attachments.get(Constants.LOCAL_PORT), 0));
         param.setVersion(VersionUtil.getDoradoVersion());
-        param.setRemoteIp(CommonUtil.objectToStr(attachments.get(Constants.CLIENT_IP), "Unknown"));
+        param.setRemoteIp(NetUtil.toIP(request.getRemoteAddress()));
         param.setProtocol(req.getProtocol());
 
         if (timeline.isEnable()) {

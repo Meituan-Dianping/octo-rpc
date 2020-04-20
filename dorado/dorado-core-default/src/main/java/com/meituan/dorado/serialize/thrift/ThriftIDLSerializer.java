@@ -52,6 +52,7 @@ public class ThriftIDLSerializer extends ThriftMessageSerializer {
     private static final org.apache.thrift.protocol.TField MTRACE_FIELD_DESC = new org.apache.thrift.protocol.TField(
             "mtrace", org.apache.thrift.protocol.TType.STRUCT, (short) 32767);
     private static final String BYTE_ARRAY_CLASS_NAME = "[B";
+    private static final int INITIAL_BYTE_ARRAY_SIZE = 1024;
 
     private static final ConcurrentMap<String, Constructor<?>> cachedConstructor = new ConcurrentHashMap<>();
 
@@ -130,23 +131,15 @@ public class ThriftIDLSerializer extends ThriftMessageSerializer {
         RpcInvocation rpcInvocation = request.getData();
         TMessage message = new TMessage(rpcInvocation.getMethod().getName(), TMessageType.CALL, request.getSeqToInt());
 
-        TMemoryBuffer transport = new TMemoryBuffer(1024);
-        TBinaryProtocol protocol = new TBinaryProtocol(transport);
+        TMemoryBuffer memoryBuffer = new TMemoryBuffer(INITIAL_BYTE_ARRAY_SIZE);
+        TBinaryProtocol protocol = new TBinaryProtocol(memoryBuffer);
 
         protocol.writeMessageBegin(message);
-        if (!request.isOctoProtocol()) {
-            // 不影响原生thrift解码
-            RequestHeader requestHeader = MetaUtil.convertRequestToOldProtocolHeader(request);
-            protocol.writeFieldBegin(MTRACE_FIELD_DESC);
-            requestHeader.write(protocol);
-            protocol.writeFieldEnd();
-        }
-
         serializeArguments(rpcInvocation, protocol);
         protocol.writeMessageEnd();
 
         protocol.getTransport().flush();
-        return transport.getArray();
+        return getActualBytes(memoryBuffer);
     }
 
     protected RpcInvocation doDeserializeRequest(DefaultRequest request, TMessage message,
@@ -155,14 +148,16 @@ public class ThriftIDLSerializer extends ThriftMessageSerializer {
             throw new ProtocolException("Thrift deserialize request: message type is invalid.");
         }
 
+        ThriftMessageInfo thriftMessageInfo = new ThriftMessageInfo(message.name, message.seqid);
         if (!request.isOctoProtocol()) {
             if (hasOldRequestHeader(protocol)) {
-                // 老协议的header
+                // 解析老协议的header
                 RequestHeader requestHeader = new RequestHeader();
                 protocol.readFieldBegin();
                 requestHeader.read(protocol);
                 protocol.readFieldEnd();
                 request = MetaUtil.convertOldProtocolHeaderToRequest(requestHeader, request);
+                thriftMessageInfo.setOldProtocol(true);
             }
             request.setServiceName(ThriftUtil.getIDLClassName(request.getServiceInterface()));
         }
@@ -175,7 +170,7 @@ public class ThriftIDLSerializer extends ThriftMessageSerializer {
         Method method = obtainMethod(request.getServiceInterface(), message.name, parameterTypeArray);
 
         RpcInvocation invocation = new RpcInvocation(request.getServiceInterface(), method, arguments.toArray(), parameterTypeArray);
-        request.setThriftMsgInfo(new ThriftMessageInfo(message.name, message.seqid));
+        request.setThriftMsgInfo(thriftMessageInfo);
         return invocation;
     }
 
@@ -196,8 +191,8 @@ public class ThriftIDLSerializer extends ThriftMessageSerializer {
             message = new TMessage(thriftMsgInfo.methodName, TMessageType.REPLY, thriftMsgInfo.seqId);
         }
 
-        TMemoryBuffer transport = new TMemoryBuffer(1024);
-        TBinaryProtocol protocol = new TBinaryProtocol(transport);
+        TMemoryBuffer memoryBuffer = new TMemoryBuffer(INITIAL_BYTE_ARRAY_SIZE);
+        TBinaryProtocol protocol = new TBinaryProtocol(memoryBuffer);
         protocol.writeMessageBegin(message);
         switch (message.type) {
             case TMessageType.EXCEPTION:
@@ -208,8 +203,8 @@ public class ThriftIDLSerializer extends ThriftMessageSerializer {
                 break;
             default:
         }
-        if (!response.isOctoProtocol()) {
-            // 不影响原生thrift服务解码
+        if (!response.isOctoProtocol() && thriftMsgInfo.isOldProtocol()) {
+            // 若请求是老协议, 添加老协议的Header
             RequestHeader requestHeader = new RequestHeader();
             protocol.writeFieldBegin(MTRACE_FIELD_DESC);
             requestHeader.write(protocol);
@@ -217,7 +212,7 @@ public class ThriftIDLSerializer extends ThriftMessageSerializer {
         }
         protocol.writeMessageEnd();
         protocol.getTransport().flush();
-        return transport.getArray();
+        return getActualBytes(memoryBuffer);
     }
 
     protected RpcResult doDeserializeResponse(DefaultResponse response, TMessage message,
@@ -226,6 +221,7 @@ public class ThriftIDLSerializer extends ThriftMessageSerializer {
         if (message.type == TMessageType.REPLY) {
             Object realResult = deserializeResult(protocol, response.getServiceInterface().getName(), message.name);
             if (realResult instanceof Exception) {
+                // 服务端自定义异常
                 response.setException((Exception) realResult);
             }
             rpcResult.setReturnVal(realResult);
@@ -234,6 +230,7 @@ public class ThriftIDLSerializer extends ThriftMessageSerializer {
             MetaUtil.wrapException(exception, response);
         }
         if (!response.isOctoProtocol() && hasOldRequestHeader(protocol)) {
+            // 解析老协议的Header
             RequestHeader requestHeader = new RequestHeader();
             protocol.readFieldBegin();
             requestHeader.read(protocol);
@@ -420,5 +417,11 @@ public class ThriftIDLSerializer extends ThriftMessageSerializer {
             }
         }
         return false;
+    }
+
+    private byte[] getActualBytes(TMemoryBuffer memoryBuffer) {
+        byte[] actualBytes = new byte[memoryBuffer.length()];
+        System.arraycopy(memoryBuffer.getArray(), 0, actualBytes, 0, memoryBuffer.length());
+        return actualBytes;
     }
 }

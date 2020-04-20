@@ -16,7 +16,7 @@ public class ShutdownHook extends Thread {
     }
 
     private ShutdownHook() {
-        super("ShutdownHook");
+        super("DoradoShutdownHook-Thread");
     }
     @Override
     public void run() {

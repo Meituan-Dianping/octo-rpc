@@ -15,7 +15,6 @@
  */
 package com.meituan.dorado.bootstrap;
 
-import com.meituan.dorado.bootstrap.invoker.ServiceInvocationRepository;
 import com.meituan.dorado.common.Constants;
 import com.meituan.dorado.common.RpcRole;
 import com.meituan.dorado.common.extension.ExtensionLoader;
@@ -46,20 +45,6 @@ public class ServiceBootstrap {
         } else {
             return null;
         }
-    }
-
-    /**
-     * 1. 关闭HttpServer
-     * 一个进程只需要一个HttpServer，不需要调用该方法，httpServer会在进程退出时销毁
-     * 除非服务不需要使用RPC的http端口，可以调用该方法
-     * 2. 关闭超时检查任务
-     */
-    public static void clearGlobalResource() {
-        if (httpServer != null) {
-            httpServer.close();
-            httpServer = null;
-        }
-        ServiceInvocationRepository.stopTimeoutTask();
     }
 
     public static Map<String, String> parseRegistryCfg(String registryCfg) {

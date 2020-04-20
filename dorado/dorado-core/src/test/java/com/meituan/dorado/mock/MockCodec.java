@@ -25,12 +25,12 @@ import java.util.Map;
 public class MockCodec implements Codec {
 
     @Override
-    public byte[] encode(Channel channel, Object message, Map<String, Object> attachments) throws IOException {
+    public byte[] encode(Channel channel, Object message, Map<String, Object> attachments) {
         return new byte[0];
     }
 
     @Override
-    public Object decode(Channel channel, byte[] buffer, Map<String, Object> attachments) throws IOException {
+    public Object decode(Channel channel, byte[] buffer, Map<String, Object> attachments) {
         return null;
     }
 }

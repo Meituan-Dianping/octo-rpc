@@ -15,16 +15,16 @@
  */
 package com.meituan.dorado.codec;
 
+import com.meituan.dorado.common.exception.ProtocolException;
 import com.meituan.dorado.common.extension.SPI;
 import com.meituan.dorado.transport.Channel;
 
-import java.io.IOException;
 import java.util.Map;
 
 @SPI
 public interface Codec {
 
-    byte[] encode(Channel channel, Object message, Map<String, Object> attachments) throws IOException;
+    byte[] encode(Channel channel, Object message, Map<String, Object> attachments) throws ProtocolException;
 
-    Object decode(Channel channel, byte[] buffer, Map<String, Object> attachments) throws IOException;
+    Object decode(Channel channel, byte[] buffer, Map<String, Object> attachments) throws ProtocolException;
 }

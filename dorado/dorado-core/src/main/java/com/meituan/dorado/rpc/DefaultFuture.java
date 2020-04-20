@@ -17,10 +17,12 @@ package com.meituan.dorado.rpc;
 
 import com.meituan.dorado.common.Constants;
 import com.meituan.dorado.common.RpcRole;
+import com.meituan.dorado.common.exception.RemoteException;
 import com.meituan.dorado.common.exception.RpcException;
 import com.meituan.dorado.common.exception.TimeoutException;
 import com.meituan.dorado.common.extension.ExtensionLoader;
 import com.meituan.dorado.common.util.CommonUtil;
+import com.meituan.dorado.common.util.NetUtil;
 import com.meituan.dorado.rpc.handler.HandlerFactory;
 import com.meituan.dorado.trace.InvokerAsyncTrace;
 import com.meituan.dorado.transport.Channel;
@@ -49,6 +51,7 @@ public class DefaultFuture<V> implements ResponseFuture<V> {
         this.genTimestamp = System.currentTimeMillis();
         this.seq = request.getSeq();
         this.request = request;
+        this.timeout = request.getTimeout();
     }
 
     public DefaultFuture(Request request, Channel channel, int timeout) {
@@ -80,13 +83,12 @@ public class DefaultFuture<V> implements ResponseFuture<V> {
             response.setException(new RpcException("Response is null, it shouldn't happen"));
         }
         this.response = response;
-        this.error = response.getException();
+        wrapException();
         if (response.getResult() != null) {
             this.value = (V) response.getResult().getReturnVal();
         }
-
-        finished.countDown();
         richResponse(request);
+        finished.countDown();
 
         if (AsyncContext.isAsyncReq(request.getData())) {
             InvokerAsyncTrace.clientAsyncRecv(response.getException(), request.getData());
@@ -95,33 +97,6 @@ public class DefaultFuture<V> implements ResponseFuture<V> {
         if (callback != null) {
             onResponse();
         }
-    }
-
-    private void onResponse() {
-        if (error != null) {
-            if (executor == null) {
-                callback.onError(error);
-            } else {
-                executor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        callback.onError(error);
-                    }
-                });
-            }
-        } else if (value != null) {
-            if (executor == null) {
-                callback.onComplete(value);
-            } else {
-                executor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        callback.onComplete(value);
-                    }
-                });
-            }
-        }
-
     }
 
     @Override
@@ -139,10 +114,9 @@ public class DefaultFuture<V> implements ResponseFuture<V> {
                 exception = e;
             }
             if (!isDone() && exception == null) {
-                throw new TimeoutException("GetRequest timeout, timeout:" + timeout);
+                exception = new TimeoutException("GetRequest timeout, timeout:" + timeout);
             }
         }
-
         if (exception != null) {
             error = exception;
         }
@@ -204,5 +178,44 @@ public class DefaultFuture<V> implements ResponseFuture<V> {
     private void richResponse(Request request) {
         int responseSize = CommonUtil.objectToInt(response.getAttachment(Constants.RESPONSE_SIZE), -1);
         request.putAttachment(Constants.RESPONSE_SIZE, responseSize);
+    }
+
+    private void wrapException() {
+        Throwable exception = response.getException();
+        if (exception instanceof RemoteException || exception instanceof TimeoutException) {
+            this.error = exception;
+            return;
+        }
+        if (exception != null) {
+            String remoteIpPort = NetUtil.toIpPort(request.getRemoteAddress());
+            this.error = new RemoteException("Remote invoke failed, interface=" + request.getServiceName() + "|method=" +
+                    request.getData().getMethod().getName() + "|provider=" + remoteIpPort, exception);
+        }
+    }
+
+    private void onResponse() {
+        if (error != null) {
+            if (executor == null) {
+                callback.onError(error);
+            } else {
+                executor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onError(error);
+                    }
+                });
+            }
+        } else {
+            if (executor == null) {
+                callback.onComplete(value);
+            } else {
+                executor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onComplete(value);
+                    }
+                });
+            }
+        }
     }
 }

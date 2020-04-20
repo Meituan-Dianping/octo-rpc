@@ -23,12 +23,8 @@ import com.meituan.dorado.rpc.meta.RpcResult;
 import com.meituan.dorado.trace.meta.TraceTimeline;
 import com.meituan.dorado.transport.meta.Request;
 import com.meituan.dorado.transport.meta.Response;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public abstract class AbstractProviderInvokeHandler implements InvokeHandler {
-
-    private static final Logger logger = LoggerFactory.getLogger(AbstractProviderInvokeHandler.class);
 
     @Override
     public Response handle(Request request) {
@@ -42,12 +38,12 @@ public abstract class AbstractProviderInvokeHandler implements InvokeHandler {
         try {
             Object result = invocation.getMethod().invoke(request.getServiceImpl(), invocation.getArguments());
             rpcResult.setReturnVal(result);
-        } catch (Exception excp) {
-            rpcResult.setReturnVal(excp);
-            if (excp instanceof ApplicationException) {
-                response.setException(excp);
+        } catch (Exception e) {
+            rpcResult.setReturnVal(e);
+            if (e instanceof ApplicationException) {
+                response.setException(e);
             } else {
-                response.setException(new ApplicationException(excp.getCause() != null ? excp.getCause() : excp));
+                response.setException(new ApplicationException(e.getCause() != null ? e.getCause() : e));
             }
         }
         TraceTimeline.record(TraceTimeline.BIZ_CALL_END_TS, invocation);

@@ -121,7 +121,31 @@ public class NetUtil {
     }
 
     public static String toIpPort(InetSocketAddress address) {
+        if (address == null) {
+            return Constants.UNKNOWN;
+        }
         return address.getAddress().getHostAddress() + Constants.COLON + address.getPort();
+    }
+
+    public static String toIP(InetSocketAddress address) {
+        if (address == null || address.getAddress() == null) {
+            return Constants.UNKNOWN;
+        }
+        return address.getAddress().getHostAddress();
+    }
+
+    public static int toPort(InetSocketAddress address) {
+        if (address == null) {
+            return -1;
+        }
+        return address.getPort();
+    }
+
+    public static String toHostPort(InetSocketAddress address) {
+        if (address == null) {
+            return Constants.UNKNOWN;
+        }
+        return address.getHostName() + Constants.COLON + address.getPort();
     }
 
     public static InetSocketAddress toAddress(String address) {

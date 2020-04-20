@@ -31,6 +31,11 @@ public class MockHttpSender implements HttpSender {
     }
 
     @Override
+    public void sendObjectJson(Object object) {
+        LOGGER.info("mock send response");
+    }
+
+    @Override
     public void sendErrorResponse(String errorMsg) {
         LOGGER.info("mock send error response");
     }

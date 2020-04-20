@@ -37,7 +37,7 @@ public class MockDiscoveryService implements DiscoveryService {
     }
 
     @Override
-    public void subcribe(SubscribeInfo info, ProviderListener listener) {
+    public void subscribe(SubscribeInfo info, ProviderListener listener) {
         List<Provider> providerList = new ArrayList<>();
         Provider provider = new Provider();
         provider.setIp(NetUtil.getLocalHost());
@@ -46,7 +46,7 @@ public class MockDiscoveryService implements DiscoveryService {
     }
 
     @Override
-    public void unsubcribe(SubscribeInfo info) {
+    public void unsubscribe(SubscribeInfo info) {
         // just mock do nothing
     }
 

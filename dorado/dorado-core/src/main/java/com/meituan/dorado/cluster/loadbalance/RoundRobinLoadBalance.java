@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * 加权轮询，同Nignx加权轮询, 区别是对于失败节点权重未做变更
+ * 加权轮询，同Nginx加权轮询, 区别是对于失败节点权重未做变更
  */
 public class RoundRobinLoadBalance extends AbstractLoadBalance {
 

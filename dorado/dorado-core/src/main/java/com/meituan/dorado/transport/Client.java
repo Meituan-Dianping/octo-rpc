@@ -48,14 +48,6 @@ public interface Client {
     ChannelHandler getChannelHandler();
 
     /**
-     * 发送请求
-     *
-     * @param message
-     * @return
-     */
-    ResponseFuture request(Object message);
-
-    /**
      * 发送请求，指定超时时间为timeout
      *
      * @param message

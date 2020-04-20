@@ -21,6 +21,7 @@ import com.meituan.dorado.rpc.meta.RpcInvocation;
 import com.meituan.dorado.transport.Client;
 import com.meituan.dorado.transport.meta.Request;
 
+import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -108,6 +109,21 @@ public class MockRequest implements Request {
 
     @Override
     public void setTimeout(int timeout) {}
+
+    @Override
+    public int getTimeout() {
+        return 0;
+    }
+
+    @Override
+    public InetSocketAddress getRemoteAddress() {
+        return null;
+    }
+
+    @Override
+    public void setRemoteAddress(InetSocketAddress remoteAddress) {
+
+    }
 
     @Override
     public Object getAttachment(String key) {

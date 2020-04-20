@@ -53,6 +53,12 @@ public class ServiceSubscriber extends ServiceBootstrap {
         return clusterHandler;
     }
 
+    public static void unsubscribeService(ReferenceConfig config) {
+        if (config.getClusterHandler() != null) {
+            config.getClusterHandler().destroy();
+        }
+    }
+
     private static void doSubscribeService(ReferenceConfig cfg, InvokerRepository repository) {
         Map<String, String> registryInfo = parseRegistryCfg(cfg.getRegistry());
         RegistryFactory registryFactory;
@@ -66,7 +72,7 @@ public class ServiceSubscriber extends ServiceBootstrap {
         repository.setSubscribeInfo(info);
         repository.setRegistry(registry);
 
-        registry.subcribe(info, repository);
+        registry.subscribe(info, repository);
     }
 
     private static ClusterHandler getClusterHandler(String clusterPolicy, InvokerRepository repository) {

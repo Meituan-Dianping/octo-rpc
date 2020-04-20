@@ -66,7 +66,7 @@ public class ZookeeperDiscoveryService implements DiscoveryService {
      * @param notifyListener
      */
     @Override
-    public synchronized void subcribe(SubscribeInfo info, ProviderListener notifyListener) {
+    public synchronized void subscribe(SubscribeInfo info, ProviderListener notifyListener) {
         try {
             NodeChangeListener listener = listeners.get(info);
             if (listener == null) {
@@ -86,7 +86,7 @@ public class ZookeeperDiscoveryService implements DiscoveryService {
     }
 
     @Override
-    public synchronized void unsubcribe(SubscribeInfo info) {
+    public synchronized void unsubscribe(SubscribeInfo info) {
         try {
             NodeChangeListener listener = listeners.remove(info);
             if (listener != null) {

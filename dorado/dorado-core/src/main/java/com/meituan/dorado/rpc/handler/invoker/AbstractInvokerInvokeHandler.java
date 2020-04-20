@@ -21,6 +21,7 @@ import com.meituan.dorado.common.RpcRole;
 import com.meituan.dorado.common.exception.RemoteException;
 import com.meituan.dorado.common.exception.RpcException;
 import com.meituan.dorado.common.exception.TimeoutException;
+import com.meituan.dorado.common.util.NetUtil;
 import com.meituan.dorado.rpc.AsyncContext;
 import com.meituan.dorado.rpc.DefaultFuture;
 import com.meituan.dorado.rpc.ResponseFuture;
@@ -29,6 +30,7 @@ import com.meituan.dorado.rpc.meta.RpcResult;
 import com.meituan.dorado.trace.meta.TraceTimeline;
 import com.meituan.dorado.transport.meta.Request;
 import com.meituan.dorado.transport.meta.Response;
+import com.meituan.dorado.util.MethodUtil;
 
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -44,7 +46,7 @@ public abstract class AbstractInvokerInvokeHandler implements InvokeHandler {
 
         TraceTimeline.record(TraceTimeline.FILTER_FIRST_STAGE_END_TS, request.getData());
         try {
-            request.getClient().request(request);
+            request.getClient().request(request, request.getTimeout());
             if (AsyncContext.isAsyncReq(request.getData())) {
                 return handleAsync(request, future);
             } else {
@@ -59,49 +61,39 @@ public abstract class AbstractInvokerInvokeHandler implements InvokeHandler {
         ServiceInvocationRepository.addTimeoutTask(request, future);
         AsyncContext.getContext().setFuture(future);
         Response response = buildResponse(request);
-        response.setResult(new RpcResult());
+        RpcResult result = new RpcResult();
+        result.setReturnVal(MethodUtil.getDefaultResult(request.getData().getMethod().getReturnType()));
+        response.setResult(result);
         return response;
     }
 
     private Response handleSync(Request request, ResponseFuture future) {
+        String remoteIpPort = NetUtil.toIpPort(request.getRemoteAddress());
         try {
             future.get(future.getTimeout(), TimeUnit.MILLISECONDS);
             return future.getResponse();
-        } catch (TimeoutException e) {
+        } catch (TimeoutException | RemoteException e) {
             throw e;
-        } catch (ExecutionException e) {
-            if (e.getCause() != null) {
-                Throwable execption = e.getCause();
-                if (execption instanceof CancellationException || execption instanceof InterruptedException) {
-                    throw new RpcException(execption);
-                }
-                if (execption instanceof RemoteException) {
-                    throw (RemoteException) execption;
-                }
-                String remotehostPort = getRemoteHostPort(request);
-                throw new RemoteException("Remote invoke failed, interface=" + request.getServiceName() + "|method=" + request.getData().getMethod().getName() + "|provider=" +
-                        remotehostPort, execption);
-            }
-            String remotehostPort = getRemoteHostPort(request);
-            throw new RemoteException("Remote invoke failed, interface=" + request.getServiceName() + "|method=" + request.getData().getMethod().getName() + "|provider=" +
-                    remotehostPort, e);
         } catch (Throwable e) {
-            String remotehostPort = getRemoteHostPort(request);
+            Throwable exception = e;
+            if (e instanceof ExecutionException) {
+                Throwable cause = e.getCause();
+                if (cause instanceof TimeoutException) {
+                    throw (TimeoutException) cause;
+                }
+                if (cause instanceof RemoteException) {
+                    throw (RemoteException) cause;
+                }
+                if (cause instanceof CancellationException || cause instanceof InterruptedException) {
+                    throw new RpcException(cause);
+                }
+                exception = cause;
+            }
             throw new RemoteException("Remote invoke failed, interface=" + request.getServiceName() + "|method=" + request.getData().getMethod().getName() + "|provider=" +
-                    remotehostPort, e);
+                    remoteIpPort, exception);
         } finally {
             ServiceInvocationRepository.removeAndGetFuture(request.getSeq());
         }
-    }
-
-    protected String getRemoteHostPort(Request request) {
-        String hostPort = "unKnown";
-        if (request.getClient() != null) {
-            String host = request.getClient().getRemoteAddress().getHostName();
-            int port = request.getClient().getRemoteAddress().getPort();
-            hostPort = host + Constants.COLON + port;
-        }
-        return hostPort;
     }
 
     @Override

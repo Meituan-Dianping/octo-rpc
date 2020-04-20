@@ -58,7 +58,7 @@ import java.util.Map;
 public abstract class OctoCodec implements Codec {
 
     private static final int PACKAGE_HEAD_LENGTH = 10;
-    private static final int PACKAGE_HEAD_INFO_LENTH = 4;
+    private static final int PACKAGE_HEAD_INFO_LENGTH = 4;
     private static final int TOTAL_LEN_FIELD_LENGTH = 4;
     private static final int HEADER_LEN_FIELD_LENGTH = 2;
     private static final int CHECKSUM_FIELD_LENGTH = 4;
@@ -73,7 +73,7 @@ public abstract class OctoCodec implements Codec {
     private static final String ATTACH_INFO_SERIALIZE_CODE = "serializeCode";
 
     @Override
-    public byte[] encode(Channel channel, Object message, Map<String, Object> attachments) throws IOException {
+    public byte[] encode(Channel channel, Object message, Map<String, Object> attachments) throws ProtocolException {
         Object obj;
         byte[] bodyBytes = new byte[0];
         if (message instanceof DefaultRequest) {
@@ -120,7 +120,7 @@ public abstract class OctoCodec implements Codec {
     }
 
     @Override
-    public Object decode(Channel channel, byte[] buffer, Map<String, Object> attachments) throws IOException {
+    public Object decode(Channel channel, byte[] buffer, Map<String, Object> attachments) throws ProtocolException {
         if (buffer.length < PACKAGE_HEAD_LENGTH) {
             throw new ProtocolException("Message length less than header length");
         }
@@ -134,7 +134,7 @@ public abstract class OctoCodec implements Codec {
         Map<String, Object> attachInfo = new HashMap<String, Object>();
         byte[] headerBodyBytes = getHeaderBodyBuff(buffer, attachInfo);
         int headerBodyLength = headerBodyBytes.length;
-        short headerLength = BytesUtil.bytes2short(buffer, PACKAGE_HEAD_INFO_LENTH + TOTAL_LEN_FIELD_LENGTH);
+        short headerLength = BytesUtil.bytes2short(buffer, PACKAGE_HEAD_INFO_LENGTH + TOTAL_LEN_FIELD_LENGTH);
 
         byte[] headerBytes = new byte[headerLength];
         System.arraycopy(headerBodyBytes, 0, headerBytes, 0, headerLength);
@@ -154,7 +154,6 @@ public abstract class OctoCodec implements Codec {
             request.setSerialize(serialize);
             request.setCompressType((CompressType) attachInfo.get(ATTACH_INFO_COMPRESS_TYPE));
             request.setDoChecksum((Boolean) attachInfo.get(ATTACH_INFO_IS_DO_CHECK));
-            request.setClientIp(channel.getRemoteAddress().getHostName());
             if (request.getMessageType() != MessageType.Normal.getValue()) {
                 if (request.getMessageType() == MessageType.NormalHeartbeat.getValue() ||
                         request.getMessageType() == MessageType.ScannerHeartbeat.getValue()) {
@@ -275,7 +274,7 @@ public abstract class OctoCodec implements Codec {
         int totalLength = BytesUtil.bytes2int(buffer, readerIndex);
         readerIndex += TOTAL_LEN_FIELD_LENGTH + HEADER_LEN_FIELD_LENGTH;
 
-        int msgNeedLength = totalLength + TOTAL_LEN_FIELD_LENGTH + PACKAGE_HEAD_INFO_LENTH;
+        int msgNeedLength = totalLength + TOTAL_LEN_FIELD_LENGTH + PACKAGE_HEAD_INFO_LENGTH;
         if (buffer.length < msgNeedLength) {
             throw new ProtocolException("Message length less than need length");
         }
@@ -355,7 +354,7 @@ public abstract class OctoCodec implements Codec {
         writerIndex += 4;
         BytesUtil.short2bytes((short) headerLength, packageHead, writerIndex);
 
-        byte[] wholeMsgBuff = new byte[PACKAGE_HEAD_INFO_LENTH + TOTAL_LEN_FIELD_LENGTH + totalLenFieldLength];
+        byte[] wholeMsgBuff = new byte[PACKAGE_HEAD_INFO_LENGTH + TOTAL_LEN_FIELD_LENGTH + totalLenFieldLength];
         System.arraycopy(packageHead, 0, wholeMsgBuff, 0, PACKAGE_HEAD_LENGTH);
         System.arraycopy(headerBodyBytes, 0, wholeMsgBuff, PACKAGE_HEAD_LENGTH, headerBodyBytes.length);
 

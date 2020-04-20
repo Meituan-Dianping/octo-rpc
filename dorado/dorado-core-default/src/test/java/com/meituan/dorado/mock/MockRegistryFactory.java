@@ -76,12 +76,12 @@ public class MockRegistryFactory extends AbstractRegistryFactory {
         }
 
         @Override
-        public void subcribe(SubscribeInfo info, ProviderListener listener) {
+        public void subscribe(SubscribeInfo info, ProviderListener listener) {
 
         }
 
         @Override
-        public void unsubcribe(SubscribeInfo info) {
+        public void unsubscribe(SubscribeInfo info) {
             // just mock do nothing
         }
 

@@ -128,11 +128,6 @@ public abstract class AbstractClient implements Client {
         return future;
     }
 
-    @Override
-    public ResponseFuture request(Object message) {
-        return request(message, getTimeout());
-    }
-
     public void connect() {
         connectLock.lock();
         try {

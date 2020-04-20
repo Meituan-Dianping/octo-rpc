@@ -33,4 +33,21 @@
             <artifactId>libthrift</artifactId>
         </dependency>
     </dependencies>
+
+<!--    <build>-->
+<!--        <plugins>-->
+<!--            <plugin>-->
+<!--            <groupId>com.sankuai.dolphin</groupId>-->
+<!--            <artifactId>thrift-maven-plugin</artifactId>-->
+<!--            <version>1.0.1-SNAPSHOT</version>-->
+<!--            <configuration>-->
+<!--                <appkey>com.sankuai.inf.dorado.server</appkey>-->
+<!--                <codeDir>src/main/java</codeDir>&lt;!&ndash;生成代码目标路径。可以不填写。默认src/main/java&ndash;&gt;-->
+<!--                <thriftVersion>0.9.3</thriftVersion>&lt;!&ndash;Thrift编译器版本&ndash;&gt;-->
+<!--                <language>java</language>&lt;!&ndash;目标语言。可以不填写。默认java&ndash;&gt;-->
+<!--                <idlDir>src/main/resources/thrift</idlDir>&lt;!&ndash;idl文件所在路径。可以不填写。默认src/main/resources/thrift&ndash;&gt;-->
+<!--            </configuration>-->
+<!--        </plugin>-->
+<!--        </plugins>-->
+<!--    </build>-->
 </project>

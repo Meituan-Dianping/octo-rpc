@@ -19,35 +19,52 @@ import com.meituan.dorado.common.exception.TimeoutException;
 import com.meituan.dorado.test.thrift.api.Echo2;
 import com.meituan.dorado.test.thrift.filter.ClientQpsLimitFilter;
 import com.meituan.dorado.test.thrift.filter.ServerQpsLimitFilter;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class MistakeInterfaceNameTest {
 
-    ClassPathXmlApplicationContext beanFactory;
+    private static ClassPathXmlApplicationContext beanFactory;
 
-    @Before
-    public void init() {
+    @BeforeClass
+    public static void init() {
         beanFactory = new ClassPathXmlApplicationContext("thrift/exception/thrift-mistake-interface.xml");
         ClientQpsLimitFilter.disable();
         ServerQpsLimitFilter.disable();
     }
 
+    /**
+     * octo协议会校验接口，将失败
+     * TODO 改为返回明确异常
+     */
     @Test
-    public void test() {
-        Echo2.Iface echo = (Echo2.Iface) beanFactory.getBean("echoService");
+    public void testOCTOProtocol() {
+        Echo2.Iface echo = (Echo2.Iface) beanFactory.getBean("octoProtocolEcho");
         try {
             echo.echo("Hello world");
+            Assert.fail();
         } catch (Exception e) {
+            e.printStackTrace();
             Assert.assertTrue(e instanceof TimeoutException);
         }
     }
 
-    @After
-    public void stop() {
+    /**
+     * 原生thrift协议不关注接口信息，不会失败
+     */
+    @Test
+    public void testOldProtocol() {
+        Echo2.Iface echo = (Echo2.Iface) beanFactory.getBean("oldProtocolEcho");
+        try {
+            String result = echo.echo("Hello world");
+            Assert.assertEquals("echo: Hello world", result);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+    }
+
+    @AfterClass
+    public static  void stop() {
         beanFactory.destroy();
     }
 }

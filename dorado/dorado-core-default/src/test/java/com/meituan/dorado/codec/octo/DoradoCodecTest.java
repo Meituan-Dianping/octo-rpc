@@ -18,7 +18,7 @@ package com.meituan.dorado.codec.octo;
 
 import com.meituan.dorado.HelloService;
 import com.meituan.dorado.bootstrap.invoker.ServiceInvocationRepository;
-import com.meituan.dorado.bootstrap.provider.ServicePublisher;
+import com.meituan.dorado.bootstrap.provider.ProviderInfoRepository;
 import com.meituan.dorado.common.Constants;
 import com.meituan.dorado.common.exception.ProtocolException;
 import com.meituan.dorado.common.exception.RpcException;
@@ -134,7 +134,7 @@ public class DoradoCodecTest {
         when(response.getResult()).thenReturn(new RpcResult("echo"));
         when(response.getSeq()).thenReturn(1L);
 
-        ServicePublisher.getServiceInterfaceMap().put("Echo.Iface", Echo.Iface.class);
+        ProviderInfoRepository.getServiceIfaceMap().put("Echo.Iface", Echo.Iface.class);
         ServiceInvocationRepository.putRequestAndFuture(request, future);
     }
 
@@ -204,7 +204,7 @@ public class DoradoCodecTest {
             byte[] content = codec.encode(channel, response, Collections.<String, Object>emptyMap());
             Object object = codec.decode(channel, content, Collections.<String, Object>emptyMap());
             Assert.assertTrue(object instanceof DefaultResponse);
-            Assert.assertTrue(((DefaultResponse)object).getException() instanceof RpcException);
+            Assert.assertTrue(((DefaultResponse) object).getException() instanceof RpcException);
         } catch (Exception e) {
             Assert.fail();
         }
@@ -214,7 +214,7 @@ public class DoradoCodecTest {
             byte[] content = codec.encode(channel, response, Collections.<String, Object>emptyMap());
             Object object = codec.decode(channel, content, Collections.<String, Object>emptyMap());
             Assert.assertTrue(object instanceof DefaultResponse);
-            Assert.assertTrue(((DefaultResponse)object).getException() instanceof TransportException);
+            Assert.assertTrue(((DefaultResponse) object).getException() instanceof TransportException);
         } catch (Exception e) {
             Assert.fail();
         }
@@ -227,7 +227,7 @@ public class DoradoCodecTest {
             byte[] content = codec.encode(channel, response, Collections.<String, Object>emptyMap());
             Object object = codec.decode(channel, content, Collections.<String, Object>emptyMap());
             Assert.assertTrue(object instanceof DefaultResponse);
-            Assert.assertEquals(((DefaultResponse)object).getResult().getReturnVal(), "echo");
+            Assert.assertEquals(((DefaultResponse) object).getResult().getReturnVal(), "echo");
         } catch (Exception e) {
             Assert.fail();
         }
@@ -340,7 +340,7 @@ public class DoradoCodecTest {
             byte[] content = codec.encode(channel, response, Collections.<String, Object>emptyMap());
             Object object = codec.decode(channel, content, attachments);
             Assert.assertTrue(object instanceof DefaultResponse);
-            Assert.assertEquals(((DefaultResponse)object).getResult().getReturnVal(), "echo");
+            Assert.assertEquals(((DefaultResponse) object).getResult().getReturnVal(), "echo");
         } catch (Exception e) {
             Assert.fail();
         }

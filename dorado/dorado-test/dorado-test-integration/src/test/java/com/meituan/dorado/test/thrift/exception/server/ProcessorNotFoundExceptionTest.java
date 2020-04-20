@@ -38,7 +38,6 @@ public class ProcessorNotFoundExceptionTest {
         serverBeanFactory = new ClassPathXmlApplicationContext("thrift/exception/processor/thrift-provider.xml");
         clientBeanFactory = new ClassPathXmlApplicationContext("thrift/exception/processor/thrift-consumer.xml");
         client = (Twitter.Iface) clientBeanFactory.getBean("clientProxy");
-        Thread.sleep(5000);
     }
 
     @AfterClass
@@ -51,6 +50,7 @@ public class ProcessorNotFoundExceptionTest {
     public void testException () {
         try {
             client.testBool(true);
+            Assert.fail();
         } catch (Exception e) {
             Assert.assertTrue(e instanceof TimeoutException);
         }

@@ -65,9 +65,5 @@ public class ServiceBootstrapTest {
     public void testHttpServer() {
         ServiceBootstrap.initHttpServer(RpcRole.INVOKER);
         Assert.assertTrue(ServiceBootstrap.getHttpServer() != null);
-
-        // clear static resource may affect other test case
-//        ServiceBootstrap.clearGlobalResource();
-//        Assert.assertTrue(ServiceBootstrap.getHttpServer() == null);
     }
 }

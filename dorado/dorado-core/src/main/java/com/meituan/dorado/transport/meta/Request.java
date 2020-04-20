@@ -18,6 +18,8 @@ package com.meituan.dorado.transport.meta;
 import com.meituan.dorado.rpc.meta.RpcInvocation;
 import com.meituan.dorado.transport.Client;
 
+import java.net.InetSocketAddress;
+
 /**
  * RPC invoke request
  */
@@ -51,6 +53,12 @@ public interface Request {
 
     void setTimeout(int timeout);
 
+    int getTimeout();
+
+    InetSocketAddress getRemoteAddress();
+
+    void setRemoteAddress(InetSocketAddress remoteAddress);
+
     Object getAttachment(String key);
 
     void putAttachment(String key, Object value);
@@ -58,4 +66,5 @@ public interface Request {
     String getLocalContext(String key);
 
     void putLocalContext(String key, String value);
+
 }

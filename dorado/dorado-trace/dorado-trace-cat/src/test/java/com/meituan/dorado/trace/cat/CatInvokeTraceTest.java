@@ -72,7 +72,7 @@ public class CatInvokeTraceTest {
                 Assert.assertEquals("echo: this is a message", message);
             } catch (Exception e) {
                 e.printStackTrace();
-                Assert.assertTrue(e.getCause() instanceof TimeoutException);
+                Assert.assertTrue(e instanceof TimeoutException);
             }
         }
     }

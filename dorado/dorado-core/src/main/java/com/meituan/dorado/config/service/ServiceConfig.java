@@ -29,10 +29,6 @@ public class ServiceConfig<T> extends AbstractConfig {
     // 接口实现 必配项
     private T serviceImpl;
 
-    // 业务线程池配置1: 参数
-    private int bizCoreWorkerThreadCount = Constants.DEFAULT_BIZ_CORE_WORKER_THREAD_COUNT;
-    private int bizMaxWorkerThreadCount = Constants.DEFAULT_BIZ_MAX_WORKER_THREAD_COUNT;
-    private int bizWorkerQueueSize = Constants.DEFAULT_BIZ_WORKER_QUEUES;
     // 业务线程池配置2: 线程池对象
     private ExecutorService bizWorkerExecutor;
     // 业务线程池配置3: 方法粒度线程池对象
@@ -52,18 +48,13 @@ public class ServiceConfig<T> extends AbstractConfig {
             }
             serviceInterface = interfaces[0];
         }
-        if (bizCoreWorkerThreadCount > bizMaxWorkerThreadCount) {
-            throw new IllegalArgumentException("bizCoreWorkerThreadCount must less than bizMaxWorkerThreadCount");
-        } else if (bizCoreWorkerThreadCount == bizMaxWorkerThreadCount) {
-            LOGGER.warn("bizCoreWorkerThreadCount equals to bizMaxWorkerThreadCount, it may cause many idle thread keep in pool.");
-        }
 
         serviceName = serviceInterface.getName();
         if (serviceName.indexOf(Constants.LINK_SUB_CLASS_SYMBOL) > 0) {
             serviceName = serviceName.substring(0, serviceName.indexOf(Constants.LINK_SUB_CLASS_SYMBOL));
         }
         if (!serviceInterface.isInterface()) {
-            serviceInterface = getSynIfaceInterface(serviceInterface);
+            serviceInterface = getSyncIfaceInterface(serviceInterface);
         }
         if (!getServiceInterface().isAssignableFrom(getServiceImpl().getClass())) {
             throw new IllegalArgumentException("serviceImpl must be sub class of class:"
@@ -84,30 +75,6 @@ public class ServiceConfig<T> extends AbstractConfig {
 
     public void setServiceImpl(T serviceImpl) {
         this.serviceImpl = serviceImpl;
-    }
-
-    public int getBizCoreWorkerThreadCount() {
-        return bizCoreWorkerThreadCount;
-    }
-
-    public void setBizCoreWorkerThreadCount(int bizCoreWorkerThreadCount) {
-        this.bizCoreWorkerThreadCount = bizCoreWorkerThreadCount;
-    }
-
-    public int getBizMaxWorkerThreadCount() {
-        return bizMaxWorkerThreadCount;
-    }
-
-    public void setBizMaxWorkerThreadCount(int bizMaxWorkerThreadCount) {
-        this.bizMaxWorkerThreadCount = bizMaxWorkerThreadCount;
-    }
-
-    public int getBizWorkerQueueSize() {
-        return bizWorkerQueueSize;
-    }
-
-    public void setBizWorkerQueueSize(int bizWorkerQueueSize) {
-        this.bizWorkerQueueSize = bizWorkerQueueSize;
     }
 
     public ExecutorService getBizWorkerExecutor() {

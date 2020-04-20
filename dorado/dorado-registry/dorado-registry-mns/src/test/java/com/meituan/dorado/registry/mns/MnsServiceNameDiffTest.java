@@ -16,7 +16,7 @@
 
 package com.meituan.dorado.registry.mns;
 
-import com.meituan.dorado.bootstrap.provider.ProviderStatus;
+import com.meituan.dorado.bootstrap.provider.meta.ProviderStatus;
 import com.meituan.dorado.registry.ProviderListener;
 import com.meituan.dorado.registry.meta.Provider;
 import com.meituan.dorado.registry.meta.SubscribeInfo;

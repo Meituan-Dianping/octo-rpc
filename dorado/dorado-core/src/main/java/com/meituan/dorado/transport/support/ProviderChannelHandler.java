@@ -17,7 +17,6 @@ package com.meituan.dorado.transport.support;
 
 import com.meituan.dorado.common.Constants;
 import com.meituan.dorado.common.RpcRole;
-import com.meituan.dorado.common.exception.ProtocolException;
 import com.meituan.dorado.common.exception.RpcException;
 import com.meituan.dorado.common.exception.ServiceException;
 import com.meituan.dorado.common.extension.ExtensionLoader;
@@ -45,7 +44,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * 每个端口服务的channel handler
@@ -64,7 +65,7 @@ public class ProviderChannelHandler implements ChannelHandler {
     private final Map<String, Class<?>> serviceInterfaceMap = new HashMap<>();
     private final Map<String, Object> serviceImplMap = new HashMap<>();
 
-    private final ExecutorService defaultExecutor;
+    private ThreadPoolExecutor defaultExecutor;
 
     private final Map<String, ExecutorService> serviceExecutorMap = new HashMap<>();
     private final Map<String, Map<String, ExecutorService>> methodExecutorMap = new HashMap<>();
@@ -75,16 +76,20 @@ public class ProviderChannelHandler implements ChannelHandler {
             serviceImplMap.put(serviceConfig.getServiceName(), serviceConfig.getServiceImpl());
             initThreadPoolExecutor(serviceConfig);
         }
-
-        defaultExecutor = new ThreadPoolExecutor(Constants.DEFAULT_BIZ_CORE_WORKER_THREAD_COUNT,
-                Constants.DEFAULT_BIZ_MAX_WORKER_THREAD_COUNT,
-                Constants.IDLE_THREAD_KEEP_ALIVE_SECONDS,
-                TimeUnit.SECONDS,
-                new LinkedBlockingQueue<Runnable>(),
-                new DefaultThreadFactory(genServerBizThreadPoolName(providerConfig)));
+        initDefaultThreadPool(providerConfig);
 
         FilterHandler actualHandler = buildActualInvokeHandler();
         filterHandler = InvokeChainBuilder.initInvokeChain(actualHandler, providerConfig.getFilters(), RpcRole.PROVIDER);
+    }
+
+    private void initDefaultThreadPool(ProviderConfig providerConfig) {
+        DefaultThreadFactory threadFactory = new DefaultThreadFactory(genServerBizThreadPoolName(providerConfig));
+        defaultExecutor = ExecutorUtil.getThreadPool(providerConfig.getBizCoreWorkerThreadCount(),
+                providerConfig.getBizMaxWorkerThreadCount(),
+                providerConfig.getBizWorkerQueueSize(),
+                providerConfig.getThreadPoolQueue(),
+                threadFactory);
+        defaultExecutor.prestartAllCoreThreads();
     }
 
     private String genServerBizThreadPoolName(ProviderConfig providerConfig) {
@@ -240,8 +245,9 @@ public class ProviderChannelHandler implements ChannelHandler {
     private void prepareReqContext(Channel channel, Request request) {
         request.putAttachment(Constants.LOCAL_IP, channel.getLocalAddress().getHostName());
         request.putAttachment(Constants.LOCAL_PORT, channel.getLocalAddress().getPort());
-        request.putAttachment(Constants.CLIENT_IP, channel.getRemoteAddress().getHostName());
-        request.putAttachment(Constants.CLIENT_PORT, channel.getRemoteAddress().getPort());
+        if (request.getRemoteAddress() == null) {
+            request.setRemoteAddress(channel.getRemoteAddress());
+        }
     }
 
     private void sendFailedResponse(final Channel channel, final InvokeHandler handler, Object message, Throwable e) {

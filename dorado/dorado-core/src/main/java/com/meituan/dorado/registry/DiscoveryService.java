@@ -19,7 +19,7 @@ import com.meituan.dorado.registry.meta.SubscribeInfo;
 
 public interface DiscoveryService extends Registry {
 
-    void subcribe(SubscribeInfo info, ProviderListener listener);
+    void subscribe(SubscribeInfo info, ProviderListener listener);
 
-    void unsubcribe(SubscribeInfo info);
+    void unsubscribe(SubscribeInfo info);
 }

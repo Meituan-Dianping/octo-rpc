@@ -20,7 +20,7 @@ import com.meituan.dorado.common.util.NetUtil;
 import com.meituan.dorado.common.util.VersionUtil;
 import com.meituan.dorado.registry.ProviderListener;
 import com.meituan.dorado.registry.meta.Provider;
-import com.meituan.dorado.bootstrap.provider.ProviderStatus;
+import com.meituan.dorado.bootstrap.provider.meta.ProviderStatus;
 import com.meituan.dorado.registry.meta.RegistryInfo;
 import com.meituan.dorado.registry.meta.SubscribeInfo;
 import org.apache.curator.test.TestingServer;
@@ -47,7 +47,6 @@ public class RegistryTest {
 
     public class MockNotifyListener implements ProviderListener {
         private ConcurrentMap<String, Provider> providers = new ConcurrentHashMap<>();
-        ;
 
         @Override
         public void notify(List<Provider> list) {

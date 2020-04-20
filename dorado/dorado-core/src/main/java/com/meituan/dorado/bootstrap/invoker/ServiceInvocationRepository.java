@@ -52,7 +52,7 @@ public class ServiceInvocationRepository {
     static {
         try {
             if (hashedWheelTimer == null) {
-                hashedWheelTimer = new HashedWheelTimer(new DefaultThreadFactory("DoradoTimeoutScheduler"),
+                hashedWheelTimer = new HashedWheelTimer(new DefaultThreadFactory("DoradoTimeoutScheduler", true),
                         10, TimeUnit.MILLISECONDS);
                 hashedWheelTimer.start();
             }
@@ -80,42 +80,35 @@ public class ServiceInvocationRepository {
     }
 
     public static void addTimeoutTask(final Request request, final ResponseFuture future) {
+        if (hashedWheelTimer == null) {
+            throw new IllegalStateException("HashedWheelTimer object is null, timeout cannot be valid, check if it is initialized failed.");
+        }
         try {
-            if (hashedWheelTimer != null) {
-                hashedWheelTimer.newTimeout(new TimerTask() {
-                    @Override
-                    public void run(Timeout timeout) {
-                        try {
-                            if (invocations.get(request.getSeq()) != null) {
-                                Response timeoutResponse = handlerFactory
-                                        .getInvocationHandler(Constants.MESSAGE_TYPE_SERVICE, RpcRole.INVOKER)
-                                        .buildResponse(invocations.get(request.getSeq()));
+            hashedWheelTimer.newTimeout(new TimerTask() {
+                @Override
+                public void run(Timeout timeout) {
+                    try {
+                        if (invocations.get(request.getSeq()) != null) {
+                            Response timeoutResponse = handlerFactory
+                                    .getInvocationHandler(Constants.MESSAGE_TYPE_SERVICE, RpcRole.INVOKER)
+                                    .buildResponse(invocations.get(request.getSeq()));
 
-                                timeoutResponse.setException(new TimeoutException(
-                                        "Request timeout[" + future.getTimeout() + "ms]" +
-                                                ", interface=" + request.getServiceName() +
-                                                "|method=" + request.getData().getMethod().getName() +
-                                                "|provider=" + (request.getClient() != null ?
-                                                request.getClient().getRemoteAddress() : "unKnown")));
-                                removeAndGetFuture(request.getSeq());
-                                future.received(timeoutResponse);
-                            }
-                        } catch (Exception e) {
-                            logger.error("HashedWheelTimer running exception.", e);
+                            timeoutResponse.setException(new TimeoutException(
+                                    "Request timeout[" + future.getTimeout() + "ms]" +
+                                            ", interface=" + request.getServiceName() +
+                                            "|method=" + request.getData().getMethod().getName() +
+                                            "|provider=" + (request.getClient() != null ?
+                                            request.getClient().getRemoteAddress() : "unKnown")));
+                            removeAndGetFuture(request.getSeq());
+                            future.received(timeoutResponse);
                         }
+                    } catch (Exception e) {
+                        logger.error("HashedWheelTimer running exception.", e);
                     }
-                }, future.getTimeout(), TimeUnit.MILLISECONDS);
-            }
+                }
+            }, future.getTimeout(), TimeUnit.MILLISECONDS);
         } catch (Exception e) {
             logger.error("Add new timeout Task exception.", e);
-        }
-    }
-
-    public static void stopTimeoutTask() {
-        if (hashedWheelTimer != null) {
-            hashedWheelTimer.stop();
-            hashedWheelTimer = null;
-            logger.info("Stop HashedWheelTimer");
         }
     }
 }
