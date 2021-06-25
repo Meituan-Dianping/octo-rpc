@@ -21,6 +21,7 @@ import com.meituan.dorado.cluster.LoadBalance;
 import com.meituan.dorado.cluster.loadbalance.LoadBalanceFactory;
 import com.meituan.dorado.cluster.router.RouterFactory;
 import com.meituan.dorado.common.Constants;
+import com.meituan.dorado.common.RpcRole;
 import com.meituan.dorado.common.exception.RpcException;
 import com.meituan.dorado.common.extension.ExtensionLoader;
 import com.meituan.dorado.config.service.util.CallWayEnum;
@@ -121,6 +122,7 @@ public class ReferenceConfig<T> extends AbstractConfig {
 
         ProxyFactory proxyFactory = ExtensionLoader.getExtension(ProxyFactory.class);
         proxyObj = (T) proxyFactory.getProxy(clusterHandler);
+        loadAndInitExtensionList(this, RpcRole.INVOKER);
         addShutDownHook();
     }
 
