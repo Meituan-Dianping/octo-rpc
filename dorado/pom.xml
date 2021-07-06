@@ -390,17 +390,4 @@
             </resource>
         </resources>
     </build>
-
-    <distributionManagement>
-        <repository>
-            <id>meituan-nexus-releases</id>
-            <name>Meituan Nexus Repository</name>
-            <url>http://maven.sankuai.com/nexus/content/repositories/releases/</url>
-        </repository>
-        <snapshotRepository>
-            <id>meituan-nexus-snapshots</id>
-            <name>Meituan Nexus Repository</name>
-            <url>http://maven.sankuai.com/nexus/content/repositories/snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement>
 </project>
