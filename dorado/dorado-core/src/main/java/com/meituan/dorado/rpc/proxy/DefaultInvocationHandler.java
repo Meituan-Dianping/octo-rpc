@@ -18,6 +18,7 @@ package com.meituan.dorado.rpc.proxy;
 import com.meituan.dorado.cluster.ClusterHandler;
 import com.meituan.dorado.common.Constants;
 import com.meituan.dorado.rpc.meta.RpcInvocation;
+import com.meituan.dorado.rpc.meta.RpcResult;
 import com.meituan.dorado.trace.meta.TraceTimeline;
 
 import java.lang.reflect.InvocationHandler;
@@ -55,6 +56,7 @@ public class DefaultInvocationHandler<T> implements InvocationHandler {
                 TraceTimeline.INVOKE_START_TS);
         invocation.putAttachment(Constants.TRACE_TIMELINE, timeline);
 
-        return handler.handle(invocation).getReturnVal();
+        RpcResult result = handler.handle(invocation);
+        return result != null ? result.getReturnVal() : null;
     }
 }

@@ -49,10 +49,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class ThriftIDLSerializer extends ThriftMessageSerializer {
-    private static final org.apache.thrift.protocol.TField MTRACE_FIELD_DESC = new org.apache.thrift.protocol.TField(
-            "mtrace", org.apache.thrift.protocol.TType.STRUCT, (short) 32767);
     private static final String BYTE_ARRAY_CLASS_NAME = "[B";
-    private static final int INITIAL_BYTE_ARRAY_SIZE = 1024;
 
     private static final ConcurrentMap<String, Constructor<?>> cachedConstructor = new ConcurrentHashMap<>();
 
@@ -403,25 +400,5 @@ public class ThriftIDLSerializer extends ThriftMessageSerializer {
             }
         }
         return clazz;
-    }
-
-    private boolean hasOldRequestHeader(TProtocol protocol) {
-        TTransport trans = protocol.getTransport();
-        if (trans.getBytesRemainingInBuffer() >= 3) {
-            byte type = trans.getBuffer()[trans.getBufferPosition()];
-            if (type == org.apache.thrift.protocol.TType.STRUCT) {
-                short id = (short) (((trans.getBuffer()[trans.getBufferPosition() + 1] & 0xff) << 8) | ((trans.getBuffer()[trans.getBufferPosition() + 2] & 0xff)));
-                if (id == MTRACE_FIELD_DESC.id) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    private byte[] getActualBytes(TMemoryBuffer memoryBuffer) {
-        byte[] actualBytes = new byte[memoryBuffer.length()];
-        System.arraycopy(memoryBuffer.getArray(), 0, actualBytes, 0, memoryBuffer.length());
-        return actualBytes;
     }
 }

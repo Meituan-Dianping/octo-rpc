@@ -62,6 +62,9 @@ public class ServicePublisher extends ServiceBootstrap {
 
         registerService(config);
         ProviderInfoRepository.addProviderInfo(config, server);
+        for (ServiceConfig serviceConfig : config.getServiceConfigList()) {
+            serviceConfig.loadAndInitExtensionList(serviceConfig, RpcRole.PROVIDER);
+        }
         LOGGER.info("Dorado service published: {}", getServiceNameList(config));
     }
 
