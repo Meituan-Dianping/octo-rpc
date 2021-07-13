@@ -15,9 +15,13 @@
  */
 package com.meituan.dorado.config.service;
 
+import com.meituan.dorado.bootstrap.ExtensionInitializer;
 import com.meituan.dorado.common.Constants;
+import com.meituan.dorado.common.RpcRole;
+import com.meituan.dorado.common.extension.ExtensionLoader;
 import com.meituan.dorado.trace.TraceFactory;
 import com.meituan.dorado.util.ClazzUtil;
+import java.util.List;
 
 public abstract class AbstractConfig {
 
@@ -35,6 +39,13 @@ public abstract class AbstractConfig {
             }
         }
         throw new IllegalArgumentException("Not find serviceInterface!");
+    }
+
+    public void loadAndInitExtensionList(AbstractConfig config, RpcRole rpcRole) {
+        List<ExtensionInitializer> initializerList = ExtensionLoader.getExtensionList(ExtensionInitializer.class);
+        for(ExtensionInitializer initializer : initializerList) {
+            initializer.init(config, rpcRole);
+        }
     }
 
     protected void configTrace(String appkey) {
