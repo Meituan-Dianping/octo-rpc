@@ -29,7 +29,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
-public class ProviderConfig {
+public class ProviderConfig implements Disposable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProviderConfig.class);
 
@@ -65,8 +65,6 @@ public class ProviderConfig {
     // 兼容bean配置, 也可以SPI配置
     private List<Filter> filters = Collections.emptyList();
     private String env = Constants.EnvType.TEST.getEnvName();
-
-    private volatile ShutDownHook hook;
 
     private volatile boolean destroyed;
 
@@ -104,10 +102,7 @@ public class ProviderConfig {
     }
 
     protected synchronized void addShutDownHook() {
-        if (hook == null) {
-            hook = new ShutDownHook(this);
-            Runtime.getRuntime().addShutdownHook(hook);
-        }
+        ShutdownHook.register(this);
     }
 
     public List<String> getServiceList() {
@@ -250,17 +245,4 @@ public class ProviderConfig {
         this.threadPoolQueue = threadPoolQueue;
     }
 
-    class ShutDownHook extends Thread {
-        private ProviderConfig config;
-
-        public ShutDownHook(ProviderConfig config) {
-            this.config = config;
-        }
-
-        @Override
-        public void run() {
-            hook = null;
-            config.destroy();
-        }
-    }
 }

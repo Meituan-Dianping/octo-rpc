@@ -23,7 +23,7 @@ import com.meituan.dorado.trace.TraceFactory;
 import com.meituan.dorado.util.ClazzUtil;
 import java.util.List;
 
-public abstract class AbstractConfig {
+public abstract class AbstractConfig implements Disposable {
 
     protected String serviceName;
     // 服务接口, 调用端必配, 服务端若没有配置则取实现类的第一个接口

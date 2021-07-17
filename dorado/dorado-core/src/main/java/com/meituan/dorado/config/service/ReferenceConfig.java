@@ -36,7 +36,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class ReferenceConfig<T> extends AbstractConfig {
+public class ReferenceConfig<T> extends AbstractConfig implements Disposable {
 
     // 必配项 服务端 appkey
     private String remoteAppkey;
@@ -85,8 +85,6 @@ public class ReferenceConfig<T> extends AbstractConfig {
     private transient ClusterHandler<?> clusterHandler;
 
     private volatile boolean destroyed;
-    private volatile ShutDownHook hook;
-
 
     public synchronized T get() {
         if (destroyed) {
@@ -143,10 +141,7 @@ public class ReferenceConfig<T> extends AbstractConfig {
     }
 
     protected synchronized void addShutDownHook() {
-        if (hook == null) {
-            hook = new ShutDownHook(this);
-            Runtime.getRuntime().addShutdownHook(hook);
-        }
+        ShutdownHook.register(this);
     }
 
     /**
@@ -347,17 +342,4 @@ public class ReferenceConfig<T> extends AbstractConfig {
         this.env = env;
     }
 
-    class ShutDownHook extends Thread {
-        private ReferenceConfig config;
-
-        public ShutDownHook(ReferenceConfig config) {
-            this.config = config;
-        }
-
-        @Override
-        public void run() {
-            hook = null;
-            config.destroy();
-        }
-    }
 }
