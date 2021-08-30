@@ -68,7 +68,15 @@ public abstract class AbstractInvoker<T> implements Invoker<T> {
         invocation.putAttachment(Constants.RPC_REQUEST, request);
         invocation.putAttachments(AsyncContext.getContext().getAttachments());
 
+        putGenericTagIfNeeded(request, invocation);
         return handler.handle(invocation);
+    }
+
+    private void putGenericTagIfNeeded(Request request, RpcInvocation invocation) {
+        if (config.getGenericType() != null) {
+            request.putLocalContext(Constants.GENERIC_KEY, config.getGenericType());
+            invocation.putAttachment(Constants.GENERIC_KEY, config.getGenericType());
+        }
     }
 
     @Override

@@ -15,6 +15,7 @@
  */
 package com.meituan.dorado.serialize.thrift;
 
+import com.meituan.dorado.util.MethodUtil;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TMemoryBuffer;
 import org.apache.thrift.transport.TTransport;
@@ -58,6 +59,16 @@ public abstract class ThriftMessageSerializer {
         byte[] actualBytes = new byte[memoryBuffer.length()];
         System.arraycopy(memoryBuffer.getArray(), 0, actualBytes, 0, memoryBuffer.length());
         return actualBytes;
+    }
+
+    public static Method obtainMethod(Class<?> clazz, String methodName, Class<?>... paramTypes) throws NoSuchMethodException {
+        String methodSignature = MethodUtil.generateMethodSignature(clazz, methodName, paramTypes);
+        Method method = cachedMethod.get(methodSignature);
+        if (method == null) {
+            method = clazz.getMethod(methodName, paramTypes);
+            cachedMethod.putIfAbsent(methodSignature, method);
+        }
+        return method;
     }
 
     public static class ThriftMessageInfo {

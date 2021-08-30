@@ -17,6 +17,7 @@ package com.meituan.dorado.serialize.thrift;
 
 import com.facebook.swift.codec.metadata.ReflectionHelper;
 import com.facebook.swift.service.ThriftService;
+import com.google.common.collect.ImmutableMap;
 import com.meituan.dorado.common.Constants;
 import com.meituan.dorado.common.exception.ProtocolException;
 import com.meituan.dorado.common.util.ClassLoaderUtil;
@@ -24,7 +25,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -40,6 +44,37 @@ public class ThriftUtil {
 
     private static final ConcurrentHashMap<String, ConcurrentHashMap<String, String>> argsClassNameMap = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String, ConcurrentHashMap<String, String>> resultClassNameMap = new ConcurrentHashMap<>();
+
+    private static final ConcurrentHashMap<Class<?>, ImmutableMap<String, Method>> methodMap = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<Class<?>, ImmutableMap<String, Type[]>> methodParameterMap = new ConcurrentHashMap<>();
+
+    public static void generateMethodCache(Class<?> serviceInterface) {
+        if (methodMap.containsKey(serviceInterface)) {
+            return;
+        }
+        Map<String, Method> methodMapBuilder = new HashMap<String, Method>();
+        Map<String, Type[]> methodParameterTypeMapBuilder = new HashMap<String, Type[]>();
+
+        ImmutableMap<String, Method> methodImmutableMap;
+        ImmutableMap<String, Type[]> methodParameterTypeMap;
+        for (Method method : serviceInterface.getMethods()) {
+            methodMapBuilder.put(method.getName(), method);
+            methodParameterTypeMapBuilder.put(method.getName(), method.getGenericParameterTypes());
+        }
+        methodImmutableMap = ImmutableMap.<String, Method>builder().putAll(methodMapBuilder).build();
+        methodParameterTypeMap = ImmutableMap.<String, Type[]>builder().putAll(methodParameterTypeMapBuilder).build();
+
+        methodMap.put(serviceInterface, methodImmutableMap);
+        methodParameterMap.put(serviceInterface, methodParameterTypeMap);
+    }
+
+    public static ConcurrentHashMap<Class<?>, ImmutableMap<String, Type[]>> getMethodParameterMap() {
+        return methodParameterMap;
+    }
+
+    public static ConcurrentHashMap<Class<?>, ImmutableMap<String, Method>> getMethodMap() {
+        return methodMap;
+    }
 
     public static boolean isSupportedThrift(Class<?> clazz) {
         return (isAnnotation(clazz) || isIDL(clazz));

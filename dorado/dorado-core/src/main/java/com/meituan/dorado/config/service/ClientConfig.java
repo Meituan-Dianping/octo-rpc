@@ -47,6 +47,9 @@ public class ClientConfig extends AbstractConfig {
     private boolean enableHttpServer;
     private boolean timelineTrace;
 
+    // 泛化调用模式
+    private String genericType;
+
     // 兼容bean配置, 也可以SPI配置
     private List<Filter> filters;
 
@@ -55,6 +58,7 @@ public class ClientConfig extends AbstractConfig {
         this.serviceName = config.getServiceName();
         this.appkey = config.getAppkey();
 
+        this.genericType = config.getGenericType();
         this.remoteAppkey = config.getRemoteAppkey();
         this.directConnAddress = genRemoteAddress(config.getDirectConnAddress());
         this.connTimeout = config.getConnTimeout();
@@ -216,5 +220,13 @@ public class ClientConfig extends AbstractConfig {
 
     public boolean isRemoteOctoProtocol() {
         return remoteOctoProtocol;
+    }
+
+    public String getGenericType() {
+        return genericType;
+    }
+
+    public void setGenericType(String genericType) {
+        this.genericType = genericType;
     }
 }

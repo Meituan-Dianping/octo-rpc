@@ -57,6 +57,8 @@ public class Constants {
     public static final String DEFAULT_REGISTRY_POLICY_TYPE = "failback";
     // 注册重试周期
     public static final int DEFAULT_REGISTRY_RETRY_PERIOD = 1000 * 5;
+    // 泛化调用
+    public static final String GENERIC_KEY = "genericType";
 
     // 集群容错策略
     public static final String DEFAULT_CLUSTER_POLICY = "failfast";
@@ -160,6 +162,22 @@ public class Constants {
                     return TEST.envName;
 
             }
+        }
+    }
+
+    public enum GenericType {
+        JACKSON_JSON_DEFAULT("json"),
+        JACKSON_JSON_COMMON("json-common"),
+        JACKSON_JSON_SIMPLE("json-simple");
+
+        String value;
+
+        GenericType(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
         }
     }
 }

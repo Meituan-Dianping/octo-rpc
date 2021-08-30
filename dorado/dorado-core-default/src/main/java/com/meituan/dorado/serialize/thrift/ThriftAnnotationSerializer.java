@@ -20,7 +20,9 @@ import com.facebook.swift.codec.internal.TProtocolWriter;
 import com.meituan.dorado.bootstrap.invoker.ServiceInvocationRepository;
 import com.meituan.dorado.codec.octo.MetaUtil;
 import com.meituan.dorado.codec.octo.meta.old.RequestHeader;
+import com.meituan.dorado.common.Constants;
 import com.meituan.dorado.common.exception.ProtocolException;
+import com.meituan.dorado.rpc.GenericService;
 import com.meituan.dorado.rpc.meta.RpcInvocation;
 import com.meituan.dorado.rpc.meta.RpcResult;
 import com.meituan.dorado.serialize.thrift.annotation.ThriftAnnotationManager;
@@ -106,6 +108,10 @@ public class ThriftAnnotationSerializer extends ThriftMessageSerializer {
 
     private RpcInvocation doDeserializeRequest(DefaultRequest request, TBinaryProtocol protocol, TMessage message) throws Exception {
         Class<?> serviceInterface = request.getServiceInterface();
+        if (request.getLocalContext(Constants.GENERIC_KEY) != null) {
+            serviceInterface = GenericService.class;
+        }
+
         ThriftMethodCodec methodCodec = null;
 
         ThriftServiceCodec serverCodec = ThriftAnnotationManager.getServerCodec(serviceInterface);
@@ -217,7 +223,12 @@ public class ThriftAnnotationSerializer extends ThriftMessageSerializer {
             throw new ProtocolException("Thrift serialize response: no thrift message info");
         }
 
-        ThriftServiceCodec serverCodec = ThriftAnnotationManager.getServerCodec(response.getServiceInterface());
+        Class<?> serviceInterface = response.getServiceInterface();
+        if (response.getLocalContext(Constants.GENERIC_KEY) != null) {
+            serviceInterface = GenericService.class;
+        }
+
+        ThriftServiceCodec serverCodec = ThriftAnnotationManager.getServerCodec(serviceInterface);
         ThriftMethodCodec methodCodec = null;
         if (serverCodec != null) {
             methodCodec = serverCodec.getMethodCodecByValue(thriftMsgInfo.methodName);

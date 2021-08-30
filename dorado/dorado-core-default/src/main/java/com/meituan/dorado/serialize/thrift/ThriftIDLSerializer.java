@@ -26,7 +26,6 @@ import com.meituan.dorado.rpc.meta.RpcResult;
 import com.meituan.dorado.trace.meta.TraceTimeline;
 import com.meituan.dorado.transport.meta.DefaultRequest;
 import com.meituan.dorado.transport.meta.DefaultResponse;
-import com.meituan.dorado.util.MethodUtil;
 import org.apache.thrift.TApplicationException;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
@@ -37,7 +36,6 @@ import org.apache.thrift.protocol.TMessageType;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TMemoryBuffer;
 import org.apache.thrift.transport.TMemoryInputTransport;
-import org.apache.thrift.transport.TTransport;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -366,16 +364,6 @@ public class ThriftIDLSerializer extends ThriftMessageSerializer {
             }
         }
         return realResult;
-    }
-
-    private Method obtainMethod(Class<?> clazz, String methodName, Class<?>... paramTypes) throws NoSuchMethodException {
-        String methodSignature = MethodUtil.generateMethodSignature(clazz, methodName, paramTypes);
-        Method method = cachedMethod.get(methodSignature);
-        if (method == null) {
-            method = clazz.getMethod(methodName, paramTypes);
-            cachedMethod.putIfAbsent(methodSignature, method);
-        }
-        return method;
     }
 
     private TBase getClazzInstance(String className) {

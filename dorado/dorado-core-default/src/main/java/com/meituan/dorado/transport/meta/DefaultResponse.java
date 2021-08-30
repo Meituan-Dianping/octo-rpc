@@ -16,6 +16,7 @@
 package com.meituan.dorado.transport.meta;
 
 import com.meituan.dorado.bootstrap.invoker.ServiceInvocationRepository;
+import com.meituan.dorado.common.Constants;
 import com.meituan.dorado.common.exception.TimeoutException;
 import com.meituan.dorado.rpc.meta.RpcResult;
 import com.meituan.dorado.serialize.thrift.ThriftMessageSerializer.ThriftMessageInfo;
@@ -90,6 +91,9 @@ public class DefaultResponse implements Response {
         this.thriftMsgInfo = request.getThriftMsgInfo();
         this.protocol = request.getProtocol();
         this.request = request;
+        if (request.getLocalContext(Constants.GENERIC_KEY) != null) {
+            this.putLocalContext(Constants.GENERIC_KEY, request.getLocalContext(Constants.GENERIC_KEY));
+        }
     }
 
     @Override

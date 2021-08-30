@@ -26,6 +26,7 @@ import com.meituan.dorado.common.exception.RpcException;
 import com.meituan.dorado.common.extension.ExtensionLoader;
 import com.meituan.dorado.config.service.util.CallWayEnum;
 import com.meituan.dorado.registry.RegistryFactory;
+import com.meituan.dorado.rpc.GenericService;
 import com.meituan.dorado.rpc.handler.filter.Filter;
 import com.meituan.dorado.rpc.proxy.ProxyFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -72,6 +73,11 @@ public class ReferenceConfig<T> extends AbstractConfig {
     private int connTimeout = Constants.DEFAULT_CONN_TIMEOUT;
     private int timeout = Constants.DEFAULT_TIMEOUT;
     private Map<String, Integer> methodTimeout = Collections.emptyMap();
+
+    // 泛化调用模式
+    private String genericType;
+    // 泛化调用下访问的服务接口
+    private String genericServiceName;
 
     // 分阶段耗时统计
     private boolean timelineTrace = false;
@@ -153,13 +159,21 @@ public class ReferenceConfig<T> extends AbstractConfig {
      * 调用端相关参数检查
      */
     protected void check() {
-        if (serviceInterface == null) {
-            throw new IllegalArgumentException("serviceInterface cannot be null");
-        }
         if (appkey == null) {
             throw new IllegalArgumentException("appkey cannot be null");
         }
-        serviceName = serviceInterface.getName();
+
+        if (serviceInterface == null && genericServiceName == null) {
+            throw new IllegalArgumentException("serviceInterface cannot be null");
+        }
+
+        if (serviceInterface == null && genericServiceName != null) {
+            serviceName = genericServiceName;
+            serviceInterface = GenericService.class;
+        } else if (serviceName == null) {
+            serviceName = serviceInterface.getName();
+        }
+
         if (!serviceInterface.isInterface()) {
             serviceInterface = getSyncIfaceInterface(serviceInterface);
         }
@@ -345,6 +359,22 @@ public class ReferenceConfig<T> extends AbstractConfig {
 
     public void setEnv(String env) {
         this.env = env;
+    }
+
+    public String getGenericType() {
+        return genericType;
+    }
+
+    public void setGenericType(String genericType) {
+        this.genericType = genericType;
+    }
+
+    public String getGenericServiceName() {
+        return genericServiceName;
+    }
+
+    public void setGenericServiceName(String genericServiceName) {
+        this.genericServiceName = genericServiceName;
     }
 
     class ShutDownHook extends Thread {

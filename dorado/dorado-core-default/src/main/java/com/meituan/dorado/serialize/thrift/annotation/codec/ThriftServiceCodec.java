@@ -29,12 +29,8 @@ public class ThriftServiceCodec {
     private Map<String, ThriftMethodCodec> methodValueCodecMap;
     private Map<String, ThriftMethodCodec> methodNameCodecMap;
 
-    public ThriftServiceCodec(Class<?> clientType, ThriftCodecManager codecManager) {
-        this(clientType, codecManager, RpcRole.INVOKER);
-    }
-
-    public ThriftServiceCodec(Object serviceImpl, ThriftCodecManager codecManager) {
-        this(serviceImpl.getClass(), codecManager, RpcRole.PROVIDER);
+    public ThriftServiceCodec(Object serviceImpl, ThriftCodecManager codecManager, RpcRole rpcRole) {
+        this(serviceImpl instanceof Class<?> ? (Class<?>) serviceImpl : serviceImpl.getClass(), codecManager, rpcRole);
     }
 
     public ThriftServiceCodec(Class<?> clientType, ThriftCodecManager codecManager, RpcRole rpcRole) {

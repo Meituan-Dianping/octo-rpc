@@ -62,6 +62,10 @@ public class RpcInvocation {
         return attachments.get(key);
     }
 
+    public Map<String, Object> getAttachments() {
+        return Collections.unmodifiableMap(attachments);
+    }
+
     public void putAttachments(Map<String, Object> attachments) {
         if (attachments == null) {
             return;

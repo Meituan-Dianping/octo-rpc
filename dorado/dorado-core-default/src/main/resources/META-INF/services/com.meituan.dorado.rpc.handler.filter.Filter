@@ -1,2 +1,4 @@
 com.meituan.dorado.rpc.handler.filter.DoradoInvokerTraceFilter
 com.meituan.dorado.rpc.handler.filter.DoradoProviderTraceFilter
+com.meituan.dorado.rpc.handler.filter.GenericInvokerFilter
+com.meituan.dorado.rpc.handler.filter.GenericProviderFilter

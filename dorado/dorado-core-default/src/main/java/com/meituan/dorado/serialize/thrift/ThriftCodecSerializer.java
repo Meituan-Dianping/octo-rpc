@@ -21,6 +21,7 @@ import com.meituan.dorado.codec.octo.MetaUtil;
 import com.meituan.dorado.common.Constants;
 import com.meituan.dorado.common.exception.ProtocolException;
 import com.meituan.dorado.common.exception.TimeoutException;
+import com.meituan.dorado.rpc.GenericService;
 import com.meituan.dorado.rpc.meta.RpcInvocation;
 import com.meituan.dorado.rpc.meta.RpcResult;
 import com.meituan.dorado.trace.meta.TraceTimeline;
@@ -43,12 +44,16 @@ public class ThriftCodecSerializer {
     }
 
     public static RpcInvocation decodeReqBody(byte[] buff, DefaultRequest request) throws Exception {
-        Class<?> iface = ProviderInfoRepository.getInterface(request.getServiceName());
-        if (iface == null) {
+        Class<?> serviceInterface = ProviderInfoRepository.getInterface(request.getServiceName());
+        if (serviceInterface == null) {
             throw new ProtocolException("No match interface of service=" + request.getServiceName());
         }
-        request.setServiceInterface(iface);
-        ThriftMessageSerializer serializer = getSerializer(iface);
+        request.setServiceInterface(serviceInterface);
+
+        if (request.getLocalContext(Constants.GENERIC_KEY) != null) {
+            serviceInterface = GenericService.class;
+        }
+        ThriftMessageSerializer serializer = getSerializer(serviceInterface);
         return (RpcInvocation) serializer.deserialize4OctoThrift(buff, request);
     }
 
@@ -79,12 +84,15 @@ public class ThriftCodecSerializer {
     }
 
     public static byte[] encodeRspBody(DefaultResponse response) throws Exception {
-        Class<?> iface = response.getServiceInterface();
-        if (iface == null) {
+        Class<?> serviceInterface = response.getServiceInterface();
+        if (serviceInterface == null) {
             throw new ProtocolException("Thrift encode responseBody: interface is null.");
         }
 
-        ThriftMessageSerializer serializer = getSerializer(iface);
+        if (response.getLocalContext(Constants.GENERIC_KEY) != null) {
+            serviceInterface = GenericService.class;
+        }
+        ThriftMessageSerializer serializer = getSerializer(serviceInterface);
         return serializer.serialize(response);
     }
 

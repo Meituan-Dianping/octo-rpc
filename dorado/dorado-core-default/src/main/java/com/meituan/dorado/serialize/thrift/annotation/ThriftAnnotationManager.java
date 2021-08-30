@@ -20,14 +20,31 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.meituan.dorado.bootstrap.provider.ProviderInfoRepository;
+import com.meituan.dorado.common.RpcRole;
+import com.meituan.dorado.rpc.GenericService;
 import com.meituan.dorado.serialize.thrift.annotation.codec.ThriftServiceCodec;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ThriftAnnotationManager {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ThriftAnnotationManager.class);
 
     private static final ThriftCodecManager codecManager = new ThriftCodecManager();
 
     private static LoadingCache<Class<?>, ThriftServiceCodec> clientCodecCache;
     private static LoadingCache<Class<?>, ThriftServiceCodec> serverCodecCache;
+
+    static {
+        try {
+            // 加载泛化调用的相关缓存信息
+            Class<?> clazz = GenericService.class;
+            initClient(clazz);
+            initServer(clazz);
+        } catch (Throwable e) {
+            LOGGER.warn("Load GenericService annotation Info error.", e);
+        }
+    }
 
     public static void initClient(Class<?> serviceInterface) {
         if (clientCodecCache == null) {
@@ -39,7 +56,7 @@ public class ThriftAnnotationManager {
 
                                 @Override
                                 public ThriftServiceCodec load(Class<?> serviceInterface) {
-                                    return new ThriftServiceCodec(serviceInterface, codecManager);
+                                    return new ThriftServiceCodec(serviceInterface, codecManager, RpcRole.INVOKER);
                                 }
                             });
                 }
@@ -58,8 +75,11 @@ public class ThriftAnnotationManager {
 
                                 @Override
                                 public ThriftServiceCodec load(Class<?> serviceInterface) {
+                                    if (serviceInterface == GenericService.class) {
+                                        return new ThriftServiceCodec(GenericService.class, codecManager, RpcRole.PROVIDER);
+                                    }
                                     Object serviceImpl = ProviderInfoRepository.getServiceImpl(serviceInterface.getName());
-                                    return new ThriftServiceCodec(serviceImpl, codecManager);
+                                    return new ThriftServiceCodec(serviceImpl, codecManager, RpcRole.PROVIDER);
                                 }
                             });
                 }
