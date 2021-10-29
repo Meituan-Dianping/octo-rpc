@@ -38,7 +38,7 @@
 
     <properties>
         <dorado.version>${project.version}</dorado.version>
-        <octo-mns.version>1.0.0-SNAPSHOT</octo-mns.version>
+        <octo-mns.version>1.0.0</octo-mns.version>
         <cat.version>3.0.0</cat.version>
 
         <commons-lang3>3.7</commons-lang3>
