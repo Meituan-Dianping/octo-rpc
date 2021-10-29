@@ -67,6 +67,7 @@ public abstract class AbstractInvoker<T> implements Invoker<T> {
         request.setData(invocation);
         invocation.putAttachment(Constants.RPC_REQUEST, request);
         invocation.putAttachments(AsyncContext.getContext().getAttachments());
+        invocation.putAttachment(Constants.REMOTE_APPKEY, config.getRemoteAppkey());
 
         putGenericTagIfNeeded(request, invocation);
         return handler.handle(invocation);

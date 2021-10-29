@@ -26,6 +26,8 @@ public class Constants {
     public static final String LOCAL_PORT = "localPort";
     public static final String REMOTE_IP = "remoteIp";
     public static final String REMOTE_PORT = "remotePort";
+    public static final String REMOTE_APPKEY = "remoteAppkey";
+    public static final String TIMEOUT = "timeout";
     public static final String REQUEST_SIZE = "requestSize";
     public static final String RESPONSE_SIZE = "responseSize";
     public static final String RPC_REQUEST = "rpcRequest";

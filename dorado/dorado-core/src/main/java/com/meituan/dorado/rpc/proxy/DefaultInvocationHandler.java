@@ -17,6 +17,7 @@ package com.meituan.dorado.rpc.proxy;
 
 import com.meituan.dorado.cluster.ClusterHandler;
 import com.meituan.dorado.common.Constants;
+import com.meituan.dorado.config.service.ClientConfig;
 import com.meituan.dorado.rpc.meta.RpcInvocation;
 import com.meituan.dorado.rpc.meta.RpcResult;
 import com.meituan.dorado.trace.meta.TraceTimeline;
@@ -52,11 +53,23 @@ public class DefaultInvocationHandler<T> implements InvocationHandler {
         RpcInvocation invocation = new RpcInvocation(handler.getInterface(), method, args,
                 parameterTypes);
 
-        TraceTimeline timeline = TraceTimeline.newRecord(handler.getRepository().getClientConfig().isTimelineTrace(),
-                TraceTimeline.INVOKE_START_TS);
-        invocation.putAttachment(Constants.TRACE_TIMELINE, timeline);
+        addClientConfig(invocation, methodName);
 
         RpcResult result = handler.handle(invocation);
         return result != null ? result.getReturnVal() : null;
+    }
+
+    private void addClientConfig(RpcInvocation invocation, String methodName) {
+        ClientConfig clientConfig = handler.getRepository().getClientConfig();
+
+        TraceTimeline timeline = TraceTimeline.newRecord(clientConfig.isTimelineTrace(),
+                TraceTimeline.INVOKE_START_TS);
+        invocation.putAttachment(Constants.TRACE_TIMELINE, timeline);
+
+        Integer timeout = clientConfig.getMethodTimeout().get(methodName);
+        if (timeout == null) {
+            timeout = clientConfig.getTimeout();
+        }
+        invocation.putAttachment(Constants.TIMEOUT, timeout);
     }
 }

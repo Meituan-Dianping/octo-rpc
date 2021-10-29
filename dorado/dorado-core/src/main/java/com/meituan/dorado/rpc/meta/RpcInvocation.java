@@ -26,7 +26,8 @@ public class RpcInvocation {
 
     private static final Logger logger = LoggerFactory.getLogger(RpcInvocation.class);
     private static final List<String> FRAMEWORK_PARAM_KEYS = new ArrayList<String>(Arrays.asList(Constants.RPC_REQUEST,
-            Constants.TRACE_PARAM, Constants.TRACE_FILTER_FINISHED, Constants.TRACE_TIMELINE));
+            Constants.TRACE_PARAM, Constants.TRACE_FILTER_FINISHED, Constants.TRACE_TIMELINE,
+            Constants.REMOTE_APPKEY, Constants.TIMEOUT));
 
     private Class<?> serviceInterface;
     private Method method;
