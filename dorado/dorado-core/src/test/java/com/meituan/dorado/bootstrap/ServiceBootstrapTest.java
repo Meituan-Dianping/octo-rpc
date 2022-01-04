@@ -17,9 +17,12 @@ package com.meituan.dorado.bootstrap;
 
 import com.meituan.dorado.common.Constants;
 import com.meituan.dorado.common.RpcRole;
+import com.meituan.dorado.transport.http.HttpServer;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.lang.reflect.Field;
 import java.util.Map;
 
 public class ServiceBootstrapTest {
@@ -30,6 +33,16 @@ public class ServiceBootstrapTest {
     private String registry4 = "zookeeper://127.0.0.1:9000";
     private String registry5 = "zookeeper://127.0.0.1:9000?k1=v1";
 
+    @After
+    public void tearDown() throws Exception {
+        HttpServer httpServer = ServiceBootstrap.getHttpServer();
+        if (httpServer != null) {
+            httpServer.close();
+            Field field = ServiceBootstrap.class.getDeclaredField("httpServer");
+            field.setAccessible(true);
+            field.set(ServiceBootstrap.class, null);
+        }
+    }
 
     @Test
     public void testParseRegistryCfg() {
@@ -62,8 +75,29 @@ public class ServiceBootstrapTest {
     }
 
     @Test
-    public void testHttpServer() {
+    public void testInitHttpServer_whenInitByInvoker_thenHttpHandlerReturnInvokerRole() {
         ServiceBootstrap.initHttpServer(RpcRole.INVOKER);
-        Assert.assertTrue(ServiceBootstrap.getHttpServer() != null);
+        HttpServer httpServer = ServiceBootstrap.getHttpServer();
+        Assert.assertNotNull(httpServer);
+        Assert.assertSame(RpcRole.INVOKER, httpServer.getHttpHandler().getRole());
     }
+
+    @Test
+    public void testInitHttpServer_whenInitByProvider_thenHttpHandlerReturnProviderRole() {
+        ServiceBootstrap.initHttpServer(RpcRole.PROVIDER);
+        HttpServer httpServer = ServiceBootstrap.getHttpServer();
+        Assert.assertNotNull(httpServer);
+        Assert.assertSame(RpcRole.PROVIDER, httpServer.getHttpHandler().getRole());
+    }
+
+    @Test
+    public void testInitHttpServer_whenInitByProviderAndInvoker_thenHttpHandlerReturnMultiRole() {
+        ServiceBootstrap.initHttpServer(RpcRole.PROVIDER);
+        ServiceBootstrap.initHttpServer(RpcRole.INVOKER);
+        HttpServer httpServer = ServiceBootstrap.getHttpServer();
+        Assert.assertNotNull(httpServer);
+        Assert.assertSame(RpcRole.MULTIROLE, httpServer.getHttpHandler().getRole());
+    }
+
+
 }
