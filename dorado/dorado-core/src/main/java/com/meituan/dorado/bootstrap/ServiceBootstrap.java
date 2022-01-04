@@ -34,9 +34,7 @@ public class ServiceBootstrap {
     public synchronized static void initHttpServer(RpcRole role) {
         // 默认启动http服务，作用于 服务自检
         HttpServerFactory httpServerFactory = ExtensionLoader.getExtension(HttpServerFactory.class);
-        if (httpServer == null) {
-            httpServer = httpServerFactory.buildServer(role);
-        }
+        httpServer = httpServerFactory.buildServer(role);
     }
 
     public static HttpServer getHttpServer() {

@@ -31,8 +31,8 @@ public abstract class AbstractHttpServer implements HttpServer {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractHttpServer.class);
 
-    private static volatile boolean started;
-    private static volatile boolean destroyed;
+    private volatile boolean started;
+    private volatile boolean destroyed;
     private static final int PORT_BIND_RETRY_TIMES = 10;
 
     protected HttpHandler httpHandler;
