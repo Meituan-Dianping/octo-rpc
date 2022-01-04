@@ -18,19 +18,24 @@ package com.meituan.dorado.mock;
 
 import com.meituan.dorado.common.RpcRole;
 import com.meituan.dorado.rpc.handler.http.HttpHandler;
+import com.meituan.dorado.transport.http.HttpSender;
 import com.meituan.dorado.transport.http.HttpServer;
 import com.meituan.dorado.transport.http.HttpServerFactory;
 
 import java.net.InetSocketAddress;
+import java.util.Map;
 
 public class MockHttpServerFactory implements HttpServerFactory {
 
     @Override
     public HttpServer buildServer(RpcRole rpcRole) {
-        return new MockHttpServer();
+        HttpServer httpServer = new MockHttpServer();
+        httpServer.getHttpHandler().setRole(rpcRole);
+        return httpServer;
     }
 
     public static class MockHttpServer implements HttpServer {
+        private HttpHandler httpHandler = new MockHttpHandler();
 
         @Override
         public InetSocketAddress getLocalAddress() {
@@ -39,7 +44,7 @@ public class MockHttpServerFactory implements HttpServerFactory {
 
         @Override
         public HttpHandler getHttpHandler() {
-            return null;
+            return httpHandler;
         }
 
         @Override
@@ -49,6 +54,24 @@ public class MockHttpServerFactory implements HttpServerFactory {
         @Override
         public boolean isStart() {
             return true;
+        }
+    }
+
+    public static class MockHttpHandler implements HttpHandler {
+        private RpcRole role;
+        @Override
+        public void handle(HttpSender httpSender, String uri, byte[] content, Map<String, String> headers) {
+
+        }
+
+        @Override
+        public RpcRole getRole() {
+            return role;
+        }
+
+        @Override
+        public void setRole(RpcRole role) {
+            this.role = role;
         }
     }
 }

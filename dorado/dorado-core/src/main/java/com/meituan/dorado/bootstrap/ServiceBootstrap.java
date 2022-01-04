@@ -19,6 +19,7 @@ import com.meituan.dorado.common.Constants;
 import com.meituan.dorado.common.RpcRole;
 import com.meituan.dorado.common.extension.ExtensionLoader;
 import com.meituan.dorado.common.util.CommonUtil;
+import com.meituan.dorado.rpc.handler.http.HttpHandler;
 import com.meituan.dorado.transport.http.HttpServer;
 import com.meituan.dorado.transport.http.HttpServerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -36,6 +37,15 @@ public class ServiceBootstrap {
         HttpServerFactory httpServerFactory = ExtensionLoader.getExtension(HttpServerFactory.class);
         if (httpServer == null) {
             httpServer = httpServerFactory.buildServer(role);
+        } else if (httpServer.getHttpHandler() != null) {
+            HttpHandler httpHandler = httpServer.getHttpHandler();
+            RpcRole rpcRole = httpHandler.getRole();
+            if (rpcRole != null && rpcRole != role) {
+                rpcRole = RpcRole.MULTIROLE;
+            } else {
+                rpcRole = role;
+            }
+            httpHandler.setRole(rpcRole);
         }
     }
 

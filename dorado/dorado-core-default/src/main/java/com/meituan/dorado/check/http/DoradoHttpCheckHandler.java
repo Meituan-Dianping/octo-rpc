@@ -65,7 +65,7 @@ public class DoradoHttpCheckHandler implements HttpCheckHandler {
          * http接口调用
          */
         if (path.startsWith(SERVICE_INVOKE_PREFIX.uri())) {
-            if (RpcRole.INVOKER == role) {
+            if (RpcRole.PROVIDER == role) {
                 String errorMsg = role + " not support service invoke";
                 logger.warn(errorMsg);
                 httpSender.sendErrorResponse(errorMsg);
@@ -194,5 +194,4 @@ public class DoradoHttpCheckHandler implements HttpCheckHandler {
     private synchronized void updateSupportReqs() {
         supportReqs = HttpURI.getSupportUriOfRole(role);
     }
-
 }
