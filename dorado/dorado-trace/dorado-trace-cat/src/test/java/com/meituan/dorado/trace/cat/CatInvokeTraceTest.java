@@ -18,8 +18,11 @@ package com.meituan.dorado.trace.cat;
 
 import com.meituan.dorado.common.exception.TimeoutException;
 import com.meituan.dorado.rpc.AsyncContext;
+import com.meituan.dorado.rpc.GenericService;
 import com.meituan.dorado.rpc.ResponseFuture;
 import com.meituan.dorado.test.thrift.api.Echo;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.thrift.TException;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -37,6 +40,7 @@ public class CatInvokeTraceTest {
     private static Echo.Iface client;
     private static Echo.Iface clientWithTimeout;
     private static final int loop = 100;
+    private static GenericService genericClient;
 
     @BeforeClass
     public static void start() {
@@ -44,6 +48,8 @@ public class CatInvokeTraceTest {
         clientBeanFactory = new ClassPathXmlApplicationContext("thrift/thrift-consumer.xml");
         client = (Echo.Iface) clientBeanFactory.getBean("clientProxy");
         clientWithTimeout = (Echo.Iface) clientBeanFactory.getBean("clientProxyWithTimeout");
+        genericClient = (GenericService) clientBeanFactory.getBean("clientProxyForGeneric");
+
     }
 
     @AfterClass
@@ -91,4 +97,23 @@ public class CatInvokeTraceTest {
         Thread.sleep(2000);
     }
 
+    @Test
+    public void testEcho2() {
+        List<String> paramTypes = new ArrayList<>();
+        paramTypes.add("java.lang.String");
+        String paramValues = "hello world";
+
+        try {
+            String result = genericClient.$invoke("echo", paramTypes, new Object[]{paramValues});
+            System.out.println(result);
+            Assert.assertEquals("\"echo: hello world\"", result);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -44,7 +44,7 @@ public class GenericProviderFilter implements Filter {
 
     @Override
     public int getPriority() {
-        return 0;
+        return Integer.MAX_VALUE;
     }
 
     @Override

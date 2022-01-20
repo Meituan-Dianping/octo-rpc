@@ -33,7 +33,7 @@ public abstract class AbstractProviderTraceFilter extends AbstractTraceFilter {
 
     @Override
     public int getPriority() {
-        return Integer.MAX_VALUE;
+        return Integer.MAX_VALUE - 1;
     }
 
     @Override
