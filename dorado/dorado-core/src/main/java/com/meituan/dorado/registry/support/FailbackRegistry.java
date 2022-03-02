@@ -31,10 +31,10 @@ import java.util.concurrent.*;
 
 public class FailbackRegistry extends RegistryPolicy {
 
-    private final Logger logger = LoggerFactory.getLogger(FailbackRegistry.class);
+    private static final Logger logger = LoggerFactory.getLogger(FailbackRegistry.class);
 
     // 定时任务执行器
-    private final ScheduledExecutorService retryExecutor = Executors.newScheduledThreadPool(1, new DefaultThreadFactory("DoradoRegistryFailedRetryTimer", true));
+    private static final ScheduledExecutorService RETRY_EXECUTOR = Executors.newScheduledThreadPool(1, new DefaultThreadFactory("DoradoRegistryFailedRetryTimer", true));
     // 失败重试定时器，定时检查是否有请求失败，如有，无限次重试
     private final ScheduledFuture<?> retryFuture;
 
@@ -48,7 +48,7 @@ public class FailbackRegistry extends RegistryPolicy {
 
     public FailbackRegistry(Registry registry) {
         super(registry);
-        this.retryFuture = retryExecutor.scheduleWithFixedDelay(new Runnable() {
+        this.retryFuture = RETRY_EXECUTOR.scheduleWithFixedDelay(new Runnable() {
             @Override
             public void run() {
                 // 检测并连接注册中心
@@ -168,7 +168,6 @@ public class FailbackRegistry extends RegistryPolicy {
     public void destroy() {
         try {
             retryFuture.cancel(true);
-            retryExecutor.shutdown();
             registry.destroy();
         } catch (Throwable e) {
             logger.warn("FailbackRegistry destroy failed", e);
