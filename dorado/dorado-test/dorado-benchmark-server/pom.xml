@@ -30,7 +30,7 @@
     <name>dorado-benchmark-server</name>
 
     <properties>
-        <spring-boot.version>1.4.3.RELEASE</spring-boot.version>
+        <spring-boot.version>2.5.12</spring-boot.version>
     </properties>
     <dependencies>
         <dependency>
